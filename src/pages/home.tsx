@@ -3,7 +3,7 @@ import Footer from "../components/Footer";
 import ProductCard from "../components/ProductCard";
 import OrderModal from "../components/Modal";
 
-import namDong from "../../assets/images/Nam-dong.png";
+import namDong from "../assets/";
 import tauHu from "../../assets/images/Tau-hu-chien.png";
 
 const Home = () => {
