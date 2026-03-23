@@ -1,6 +1,6 @@
-import Header from "../components/header";
-import Footer from "../components/Modal";
-import ProductCard from "../components/footer";
+import Header from "../components//header";
+import Footer from "../components/footer";
+import ProductCard from "../components/ProductCard";
 import OrderModal from "../components/Modal";
 
 import namDong from "../../assets/images/Nam-dong.png";

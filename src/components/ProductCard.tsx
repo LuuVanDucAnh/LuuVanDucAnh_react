@@ -1,22 +1,19 @@
+type Product = {
+  name: string;
+  price: number;
+  image: string;
+};
+
 type Props = {
-  product: {
-    name: string;
-    price: number;
-    image: string;
-  };
+  product: Product;
 };
 
 const ProductCard = ({ product }: Props) => {
   return (
-    <div className="product_item">
+    <div className="product_card">
       <img src={product.image} alt={product.name} />
       <h3>{product.name}</h3>
-      <p>{product.price.toLocaleString()} VNĐ</p>
-
-      <button>
-        <i className="fa-solid fa-cart-shopping"></i>
-        Đặt hàng
-      </button>
+      <p>{product.price}đ</p>
     </div>
   );
 };
