@@ -3,8 +3,8 @@ import Footer from "../components/Footer";
 import ProductCard from "../components/ProductCard";
 import OrderModal from "../components/Modal";
 
-import namDong from "../assets/css/images/Nam-dong.png";
-import tauHu from "../assets/css/images/Tau-hu-chien.png";
+import namDong from "../images/Nam-dong.png";
+import tauHu from "../images/Tau-hu-chien.png";
 
 const Home = () => {
   const products = [
