@@ -3,6 +3,7 @@ import Footer from "../components/Footer";
 import ProductCard from "../components/ProductCard";
 import OrderModal from "../components/Modal";
 
+// 🔥 ĐÚNG với cấu trúc src/images
 import namDong from "../images/Nam-dong.png";
 import tauHu from "../images/Tau-hu-chien.png";
 
@@ -21,51 +22,40 @@ const Home = () => {
   ];
 
   return (
-    <>
+    <div>
       <Header />
 
-      <div className="main">
-        <div className="container">
-          {/* Slide */}
-          <div className="slide_show">
-            <button className="prev_btn">
-              <i className="fa-solid fa-chevron-left"></i>
-            </button>
+      <h1>TRANG HOME</h1> {/* 🔥 test chắc chắn render */}
 
-            <img src={namDong} alt="slide" />
+      <div>
+        {/* Slide */}
+        <div>
+          <button>{"<"}</button>
+          <img src={namDong} alt="slide" width="200" />
+          <button>{">"}</button>
+        </div>
 
-            <button className="next_btn">
-              <i className="fa-solid fa-chevron-right"></i>
-            </button>
-          </div>
+        {/* Service */}
+        <div>
+          <h3>Giao hàng tận nơi</h3>
+          <p>Nhanh chóng</p>
+        </div>
 
-          {/* Service */}
-          <div className="slide_service">
-            <div className="service_item">
-              <i className="fa-solid fa-truck-fast"></i>
-              <div>
-                <h3>Giao hàng tận nơi</h3>
-                <p>Nhanh chóng</p>
-              </div>
-            </div>
-          </div>
+        {/* Product */}
+        <div>
+          <h2>Món Chay</h2>
 
-          {/* Product */}
-          <div className="product">
-            <h2 className="product_title">Món Chay</h2>
-
-            <div className="productContainer">
-              {products.map((item, index) => (
-                <ProductCard key={index} product={item} />
-              ))}
-            </div>
+          <div>
+            {products.map((item, index) => (
+              <ProductCard key={index} product={item} />
+            ))}
           </div>
         </div>
       </div>
 
       <Footer />
       <OrderModal />
-    </>
+    </div>
   );
 };
 

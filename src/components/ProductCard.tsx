@@ -4,14 +4,10 @@ type Product = {
   image: string;
 };
 
-type Props = {
-  product: Product;
-};
-
-const ProductCard = ({ product }: Props) => {
+const ProductCard = ({ product }: { product: Product }) => {
   return (
-    <div className="product_card">
-      <img src={product.image} alt={product.name} />
+    <div style={{ border: "1px solid #ccc", margin: "10px" }}>
+      <img src={product.image} alt={product.name} width="100" />
       <h3>{product.name}</h3>
       <p>{product.price}đ</p>
     </div>
