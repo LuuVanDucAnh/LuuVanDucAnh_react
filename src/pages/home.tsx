@@ -1,5 +1,5 @@
-import Header from "../components//header";
-import Footer from "../components/footer";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 import ProductCard from "../components/ProductCard";
 import OrderModal from "../components/Modal";
 
