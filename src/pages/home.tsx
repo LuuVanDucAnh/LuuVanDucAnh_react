@@ -1,7 +1,7 @@
-import Header from "../../components/Header/Header";
-import Footer from "../../components/Footer/Footer";
-import ProductCard from "../../components/ProductCard/ProductCard";
-import OrderModal from "../../components/Modal/OrderModal";
+import Header from "../components/header";
+import Footer from "../components/Modal";
+import ProductCard from "../components/footer";
+import OrderModal from "../components/Modal";
 
 import namDong from "../../assets/images/Nam-dong.png";
 import tauHu from "../../assets/images/Tau-hu-chien.png";
