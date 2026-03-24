@@ -20,6 +20,9 @@
     margin-bottom: 20px;
     background: #ccc;
 }
+body{
+    margin: 0;
+}
 
 .slide img {
     width: 100%;
@@ -63,16 +66,16 @@
 .service_item {
     display: flex;
     align-items: center;
-    padding: 20px;
+    padding: 15px;
     background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 5px 10px #ddd;
+    border-radius: 15px;
+    box-shadow: 0 10px 10px #ddd;
     text-align: left;
     gap: 15px;
 }
 
 .service_item i {
-    font-size: 35px;
+    font-size: 40px;
     color: #f08550;
 }
 
