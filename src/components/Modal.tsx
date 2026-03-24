@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "../assets/css/style_modal.css";
 
 const OrderModal = () => {
   const [quantity, setQuantity] = useState(1);

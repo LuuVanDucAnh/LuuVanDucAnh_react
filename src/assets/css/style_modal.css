@@ -1,0 +1,139 @@
+/* OVERLAY */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+/* CONTENT */
+.modal-content {
+    width: 500px;
+    background: #fff8f0;
+    border-radius: 15px;
+    padding: 20px;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    animation: fadeIn 0.3s ease;
+}
+
+/* ANIMATION */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* CLOSE BUTTON */
+.close-modal {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #888;
+    transition: 0.2s;
+}
+
+.close-modal:hover {
+    color: #000;
+    transform: scale(1.2);
+}
+
+/* TITLE */
+.modal-content h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #f08550;
+}
+
+/* BODY */
+.modal-body {
+    display: flex;
+    gap: 20px;
+}
+
+/* IMAGE */
+.modal-image {
+    width: 200px;
+    height: 200px;
+    overflow: hidden;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+}
+
+.modal-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* INFO */
+.modal-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.modal-info p {
+    font-size: 18px;
+    color: #f08550;
+    font-weight: 600;
+}
+
+/* QUANTITY */
+.modal-quantity {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-quantity button {
+    padding: 5px 10px;
+    border: none;
+    background-color: #f08550;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.modal-quantity button:hover {
+    background-color: #e67339;
+}
+
+.modal-quantity input {
+    width: 40px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    height: 30px;
+}
+
+/* BUTTON ADD CART */
+.modal-info > button {
+    padding: 10px;
+    border: none;
+    background-color: #f08550;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.modal-info > button:hover {
+    background-color: #e67339;
+    transform: translateY(-2px);
+}

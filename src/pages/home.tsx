@@ -22,40 +22,44 @@ const Home = () => {
   ];
 
   return (
-    <div>
-      <Header />
+    <div className="home">
+  <Header />
 
-      <h1>TRANG HOME</h1> {/* 🔥 test chắc chắn render */}
+    <h1 className="home_title">TRANG HOME</h1>
 
-      <div>
-        {/* Slide */}
-        <div>
-          <button>{"<"}</button>
-          <img src={namDong} alt="slide" width="200" />
-          <button>{">"}</button>
-        </div>
+    <div className="home_container">
 
-        {/* Service */}
-        <div>
+      {/* Slide */}
+      <div className="slide">
+        <button className="slide_btn prev">{"<"}</button>
+        <img src={namDong} alt="slide" />
+        <button className="slide_btn next">{">"}</button>
+      </div>
+
+      {/* Service */}
+      <div className="service">
+        <div className="service_item">
           <h3>Giao hàng tận nơi</h3>
           <p>Nhanh chóng</p>
         </div>
+      </div>
 
-        {/* Product */}
-        <div>
-          <h2>Món Chay</h2>
+      {/* Product */}
+      <div className="product_section">
+        <h2 className="product_title">Món Chay</h2>
 
-          <div>
-            {products.map((item, index) => (
-              <ProductCard key={index} product={item} />
-            ))}
-          </div>
+        <div className="product_list">
+          {products.map((item, index) => (
+            <ProductCard key={index} product={item} />
+          ))}
         </div>
       </div>
 
-      <Footer />
-      <OrderModal />
     </div>
+
+    <Footer />
+    <OrderModal />
+  </div>
   );
 };
 
