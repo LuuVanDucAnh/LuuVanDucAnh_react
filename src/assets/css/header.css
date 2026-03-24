@@ -1,0 +1,229 @@
+/* ---------------Biến-------------- */
+:root {
+    --orange: #f08550;
+    --text-color: #ffffff;
+}
+
+/* -----------Reset CSS------------ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* -------------Element---------- */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+/*--------------------------------Header-----------------------------*/
+.container {
+    max-width: 1300px;
+    margin: 0 auto;
+}
+
+/* HEADER */
+.header {
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 9999;
+    background-color: white;
+}
+
+/* HEADER TOP */
+.header_top {
+    width: 100%;
+    box-shadow: inset 0px -0.5px 0px #e6e6e6;
+}
+
+.header_top .container {
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* LEFT - LOGO */
+.header_top_left {
+    display: flex;
+    align-items: center;
+}
+
+.header_logo {
+    width: 100px;
+    height: 50px;
+}
+
+.Logo_icon {
+    width: 100%;
+    height: 100%;
+}
+
+/* MIDDLE - SEARCH */
+.header_top_middle {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.form_search {
+    width: 400px;
+    height: 40px;
+    background-color: #f0f0f0;
+    padding: 7px 10px;
+    border-radius: 30px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.search_btn {
+    color: #707070;
+}
+
+.form_search input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background-color: transparent;
+}
+
+.form_search button {
+    border: none;
+    padding: 5px 15px;
+    background-color: var(--orange);
+    color: var(--text-color);
+    border-radius: 18px;
+    cursor: pointer;
+}
+
+/* RIGHT - ACCOUNT + CART */
+.header_top_right {
+    display: flex;
+    align-items: center;
+}
+
+.header_list {
+    display: flex;
+    list-style: none;
+    align-items: center;
+    gap: 20px;
+}
+
+.header_list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header_list i {
+    font-size: 24px;
+    color: var(--orange);
+    position: relative;
+}
+
+/* TEXT ACCOUNT */
+.text_dndk {
+    font-size: 12px;
+}
+
+.text_tk {
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* ACCOUNT DROPDOWN */
+.account {
+    position: relative;
+}
+
+.account:hover .account_manager {
+    display: block;
+}
+
+.account_manager {
+    list-style: none;
+    width: 180px;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 5px 10px #ddd;
+    display: none;
+    overflow: hidden;
+}
+
+.account_manager li a {
+    display: block;
+    padding: 8px 10px;
+    font-size: 14px;
+}
+
+.account_manager li a:hover {
+    background-color: #f0f0f0;
+    color: var(--orange);
+}
+
+/* CART */
+.cart a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* FIX SỐ LƯỢNG */
+.number_items {
+    position: absolute;
+    top: -10px;
+    right: -15px;
+    font-size: 12px;
+    color: #fff;
+    background-color: var(--orange);
+    padding: 2px 6px;
+    border-radius: 50%;
+}
+
+/* NAV */
+.header_nav {
+    box-shadow: 0px 5px 10px #dddddd;
+}
+
+.nav {
+    display: flex;
+    list-style: none;
+    height: 50px;
+    overflow-x: auto;
+}
+
+.nav li a {
+    display: block;
+    padding: 15px 25px;
+    text-transform: uppercase;
+    font-size: 13px;
+    position: relative;
+    white-space: nowrap;
+}
+
+/* Hover underline */
+.nav li a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%) scaleX(0);
+    width: 100%;
+    height: 2px;
+    background-color: var(--orange);
+    transition: 0.3s;
+}
+
+.nav li a:hover::after {
+    transform: translateX(-50%) scaleX(1);
+}

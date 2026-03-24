@@ -24,15 +24,10 @@ const Header = () => {
                 <i className="fa-solid fa-magnifying-glass"></i>
               </span>
 
-              <input
-                type="text"
-                placeholder="Tìm kiếm món ăn"
-                autoComplete="off"
-              />
+              <input type="text" placeholder="Tìm kiếm món ăn" />
 
               <button type="submit">
-                <i className="fa-solid fa-filter"></i>
-                Lọc
+                <i className="fa-solid fa-filter"></i> Lọc
               </button>
             </form>
           </div>
@@ -41,7 +36,6 @@ const Header = () => {
           <div className="header_top_right">
             <ul className="header_list">
 
-              {/* ACCOUNT */}
               <li className="account">
                 <i className="fa-solid fa-user"></i>
 
@@ -53,33 +47,13 @@ const Header = () => {
                 </div>
 
                 <ul className="account_manager">
-                  <li>
-                    <Link to="/login">
-                      <i className="fa-solid fa-right-to-bracket"></i> Đăng nhập
-                    </Link>
-                  </li>
-
-                  <li>
-                    <Link to="/register">
-                      <i className="fa-solid fa-user-plus"></i> Đăng ký
-                    </Link>
-                  </li>
-
-                  <li>
-                    <Link to="/admin">
-                      <i className="fa-solid fa-gear"></i> Quản lý
-                    </Link>
-                  </li>
-
-                  <li>
-                    <Link to="/">
-                      <i className="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
-                    </Link>
-                  </li>
+                  <li><Link to="/login">Đăng nhập</Link></li>
+                  <li><Link to="/register">Đăng ký</Link></li>
+                  <li><Link to="/admin">Quản lý</Link></li>
+                  <li><Link to="/">Đăng xuất</Link></li>
                 </ul>
               </li>
 
-              {/* CART */}
               <li className="cart">
                 <Link to="/cart">
                   <i className="fa-solid fa-cart-shopping">
@@ -91,6 +65,7 @@ const Header = () => {
 
             </ul>
           </div>
+
         </div>
       </div>
 
