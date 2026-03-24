@@ -3,9 +3,9 @@ import Footer from "../components/Footer";
 import ProductCard from "../components/ProductCard";
 import OrderModal from "../components/Modal";
 
-// 🔥 ĐÚNG với cấu trúc src/images
 import namDong from "../images/Nam-dong.png";
 import tauHu from "../images/Tau-hu-chien.png";
+import "../assets/css/style_home.css";
 
 const Home = () => {
   const products = [
@@ -25,7 +25,7 @@ const Home = () => {
     <div className="home">
       <Header />
 
-      <h1>TRANG HOME</h1> {/* 🔥 test chắc chắn render */}
+      <h1>TRANG HOME</h1> 
 
       <div className="home_container">
         {/* Slide */}
