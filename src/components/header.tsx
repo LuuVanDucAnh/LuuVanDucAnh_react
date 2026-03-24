@@ -18,6 +18,8 @@ const Header = () => {
           </div>
 
           {/* SEARCH */}
+          
+
           <div className="header_top_middle">
             <form className="form_search">
               <span className="search_btn">
