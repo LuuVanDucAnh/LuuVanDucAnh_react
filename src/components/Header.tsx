@@ -42,7 +42,7 @@ const Header = () => {
                 <i className="fa-solid fa-user"></i>
 
                 <div className="text text_tk" style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                  Nhà Hàng Chay Tâm An <i className="fa-solid fa-caret-down" style={{ fontSize: "14px", color: "black" }}></i>
+                  Đăng nhập/Đăng ký <i className="fa-solid fa-caret-down" style={{ fontSize: "14px", color: "black" }}></i>
                 </div>
 
                 <ul className="account_manager">
