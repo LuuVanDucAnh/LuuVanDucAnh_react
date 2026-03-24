@@ -5,6 +5,7 @@ import OrderModal from "../components/Modal";
 
 import namDong from "../images/Nam-dong.png";
 import tauHu from "../images/Tau-hu-chien.png";
+import slide1 from "../images/Slide1.png";
 import "../assets/css/style_home.css";
 
 const Home = () => {
@@ -25,22 +26,44 @@ const Home = () => {
     <div className="home">
       <Header />
 
-      <h1>TRANG HOME</h1> 
-
       <div className="home_container">
         {/* Slide */}
         <div className="slide">
-          <button className="slide_btn_prev">{"<"}</button>
-          <img src={namDong} alt="slide" width="200" />
-          <button className="slide_btn_next">{">"}</button>
+          <button className="slide_btn slide_btn_prev">{"<"}</button>
+          <img src={slide1} alt="slide" />
+          <button className="slide_btn slide_btn_next">{">"}</button>
         </div>
 
         {/* Service */}
         <div className="service">
           <div className="service_item">
-            <h3>Giao hàng tận nơi</h3>
-            <p>Nhanh chóng</p>
-          </div>        
+            <i className="fa-solid fa-truck-fast"></i>
+            <div className="service_content">
+              <h3>Giao hàng tận nơi</h3>
+              <p>Giao hàng nhanh chóng và tiện lợi đến tay bạn</p>
+            </div>
+          </div>
+          <div className="service_item">
+            <i className="fa-solid fa-shield-halved"></i>
+            <div className="service_content">
+              <h3>Sản phẩm an toàn</h3>
+              <p>Cam kết chất lượng đạt tiêu chuẩn</p>
+            </div>
+          </div>
+          <div className="service_item">
+            <i className="fa-solid fa-credit-card"></i>
+            <div className="service_content">
+              <h3>Thanh toán an toàn</h3>
+              <p>Hỗ trợ phương thức thanh toán an toàn, bảo mật.</p>
+            </div>
+          </div>
+          <div className="service_item">
+            <i className="fa-solid fa-headset"></i>
+            <div className="service_content">
+              <h3>Hỗ trợ 24/7</h3>
+              <p>Đội ngũ hỗ trợ khách hàng luôn sẵn sàng phục vụ bạn.</p>
+            </div>
+          </div>
         </div>
 
         {/* Product */}
@@ -56,7 +79,7 @@ const Home = () => {
       </div>
 
       <Footer />
-      <OrderModal />
+      {/* <OrderModal /> */}
     </div>
   );
 };

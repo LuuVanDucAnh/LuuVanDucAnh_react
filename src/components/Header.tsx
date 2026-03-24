@@ -41,11 +41,8 @@ const Header = () => {
               <li className="account">
                 <i className="fa-solid fa-user"></i>
 
-                <div className="text">
-                  <span className="text_dndk">Đăng nhập / Đăng ký</span>
-                  <span className="text_tk">
-                    Tài khoản <i className="fa-solid fa-caret-down"></i>
-                  </span>
+                <div className="text text_tk" style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                  Nhà Hàng Chay Tâm An <i className="fa-solid fa-caret-down" style={{ fontSize: "14px", color: "black" }}></i>
                 </div>
 
                 <ul className="account_manager">
@@ -59,7 +56,7 @@ const Header = () => {
               <li className="cart">
                 <Link to="/cart">
                   <i className="fa-solid fa-cart-shopping">
-                    <div className="number_items">0</div>
+                    <div className="number_items">5</div>
                   </i>
                   <span>Giỏ hàng</span>
                 </Link>
@@ -75,13 +72,14 @@ const Header = () => {
       <div className="header_nav">
         <div className="container">
           <ul className="nav">
-            <li><Link to="/">Trang chủ</Link></li>
-            <li><a href="#mon_chay">Món Chay</a></li>
-            <li><a href="#mon_man">Món Mặn</a></li>
-            <li><a href="#mon_lau">Món Lẩu</a></li>
-            <li><a href="#an_vat">Ăn Vặt</a></li>
-            <li><a href="#hoa_qua">Hoa Quả</a></li>
-            <li><a href="#nuoc_uong">Nước Uống</a></li>
+            <li><Link to="/">TRANG CHỦ</Link></li>
+            <li><a href="#mon_chay">MÓN CHAY</a></li>
+            <li><a href="#mon_man">MÓN MẶN</a></li>
+            <li><a href="#mon_lau">MÓN LẨU</a></li>
+            <li><a href="#an_vat">ĂN VẶT</a></li>
+            <li><a href="#hoa_qua">HOA QUẢ</a></li>
+            <li><a href="#nuoc_uong">NƯỚC UỐNG</a></li>
+            <li><a href="#khac">KHÁC</a></li>
           </ul>
         </div>
       </div>

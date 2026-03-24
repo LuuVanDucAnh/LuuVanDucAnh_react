@@ -31,41 +31,61 @@
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    padding: 8px 12px;
     border: none;
     background: rgba(255,255,255,0.7);
     cursor: pointer;
-    border-radius: 8px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
     font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
 }
 
-.slide_btn.prev {
+.slide_btn_prev {
     left: 10px;
 }
 
-.slide_btn.next {
+.slide_btn_next {
     right: 10px;
 }
 
 /* ---------------- SERVICE ---------------- */
 .service {
     margin: 20px 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
 }
 
 .service_item {
-    padding: 15px;
+    display: flex;
+    align-items: center;
+    padding: 20px;
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 5px 10px #ddd;
-    text-align: center;
+    text-align: left;
+    gap: 15px;
 }
 
-.service_item h3 {
+.service_item i {
+    font-size: 35px;
     color: #f08550;
 }
 
-.service_item p {
+.service_content h3 {
+    color: #f08550;
+    font-size: 16px;
+    margin-bottom: 5px;
+}
+
+.service_content p {
     color: #707070;
+    font-size: 13px;
+    line-height: 1.4;
 }
 
 /* ---------------- PRODUCT ---------------- */
