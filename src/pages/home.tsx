@@ -23,43 +23,41 @@ const Home = () => {
 
   return (
     <div className="home">
-  <Header />
+      <Header />
 
-    <h1 className="home_title">TRANG HOME</h1>
+      <h1>TRANG HOME</h1> {/* 🔥 test chắc chắn render */}
 
-    <div className="home_container">
+      <div className="home_container">
+        {/* Slide */}
+        <div className="slide">
+          <button className="slide_btn_prev">{"<"}</button>
+          <img src={namDong} alt="slide" width="200" />
+          <button className="slide_btn_next">{">"}</button>
+        </div>
 
-      {/* Slide */}
-      <div className="slide">
-        <button className="slide_btn prev">{"<"}</button>
-        <img src={namDong} alt="slide" />
-        <button className="slide_btn next">{">"}</button>
-      </div>
+        {/* Service */}
+        <div className="service">
+          <div className="service_item">
+            <h3>Giao hàng tận nơi</h3>
+            <p>Nhanh chóng</p>
+          </div>        
+        </div>
 
-      {/* Service */}
-      <div className="service">
-        <div className="service_item">
-          <h3>Giao hàng tận nơi</h3>
-          <p>Nhanh chóng</p>
+        {/* Product */}
+        <div className="product_section">
+          <h2 className="product_title">Món Chay</h2>
+
+          <div className="product_list">
+            {products.map((item, index) => (
+              <ProductCard key={index} product={item} />
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Product */}
-      <div className="product_section">
-        <h2 className="product_title">Món Chay</h2>
-
-        <div className="product_list">
-          {products.map((item, index) => (
-            <ProductCard key={index} product={item} />
-          ))}
-        </div>
-      </div>
-
+      <Footer />
+      <OrderModal />
     </div>
-
-    <Footer />
-    <OrderModal />
-  </div>
   );
 };
 
