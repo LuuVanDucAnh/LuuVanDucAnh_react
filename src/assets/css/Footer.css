@@ -96,6 +96,7 @@
 .widget_row {
   display: flex;
   justify-content: space-between;
+  gap: 30px;
   flex-wrap: wrap;
 }
 
@@ -103,7 +104,6 @@
   flex: 1;
   min-width: 200px;
   margin-bottom: 20px;
-  padding-right: 20px;
 }
 
 .widget_col h3 {
@@ -125,8 +125,9 @@
   background-color: #e07444;
 }
 
+/* Remove about_col and contact_col width overrides if we want them perfectly even, or just keep flex: 1 */
 .about_col {
-  flex: 1.5;
+  flex: 1.2;
 }
 
 .widget_col p {
@@ -191,7 +192,7 @@
 }
 
 .contact_col {
-  flex: 1.5;
+  flex: 1.2;
 }
 
 .contact_item {
