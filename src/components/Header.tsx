@@ -56,7 +56,7 @@ const Header = () => {
               <li className="cart">
                 <Link to="/cart">
                   <i className="fa-solid fa-cart-shopping">
-                    <div className="number_items">1</div>
+                    <div className="number_items">2</div>
                   </i>
                   <span>Giỏ hàng</span>
                 </Link>
