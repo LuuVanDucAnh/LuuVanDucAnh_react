@@ -76,6 +76,26 @@ const Home = () => {
             ))}
           </div>
         </div>
+
+        <div className="product_section">
+          <h2 className="product_title">Món Mặn</h2>
+
+          <div className="product_list">
+            {products.map((item, index) => (
+              <ProductCard key={index} product={item} />
+            ))}
+          </div>
+        </div>
+
+        <div className="product_section">
+          <h2 className="product_title">Món Lẩu</h2>
+
+          <div className="product_list">
+            {products.map((item, index) => (
+              <ProductCard key={index} product={item} />
+            ))}
+          </div>
+        </div>
       </div>
 
       <Footer />
