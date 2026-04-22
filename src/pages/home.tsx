@@ -44,10 +44,10 @@ import traTac from "../images/Tra-tac.jpg";
 
 // Sample data for categories
 const MON_CHAY = [
-  { id: 1, name: "Nhà Hàng Chay Tâm An", rating: 4.8, price: "20.000đ", image: namDong, description: "Chuyên các món chay thanh tịnh, tự nhiên và giàu dinh dưỡng." },
-  { id: 2, name: "Nhà Hàng Chay Thanh Tịnh", rating: 4.7, price: "30.000đ", image: tauHu, description: "Không gian yên tĩnh, món ăn thanh đạm chuẩn vị chay." },
-  { id: 21, name: "Cơm Chiên Chay", rating: 4.6, price: "45.000đ", image: comChienChay, description: "Cơm chiên hạt dẻo thơm, rau củ tươi ngon." },
-  { id: 22, name: "Chả Giò Chay", rating: 4.5, price: "35.000đ", image: chaGioChay, description: "Chả giò giòn rụm, nhân nấm và miến hấp dẫn." },
+  { id: 1, name: "Nhà Hàng Chay Tâm An", rating: 4.8, price: "50.000 VNĐ", image: namDong, description: "Chuyên phục vụ các món chay thanh đạm, tốt cho sức khỏe", dishes: "8 món", time: "30-45 phút" },
+  { id: 2, name: "Nhà Hàng Chay Thanh Tịnh", rating: 4.7, price: "30.000 VNĐ", image: tauHu, description: "Không gian yên tĩnh, món ăn thanh đạm chuẩn vị chay", dishes: "12 món", time: "15-20 phút" },
+  { id: 21, name: "Cơm Chiên Chay", rating: 4.6, price: "45.000 VNĐ", image: comChienChay, description: "Cơm chiên hạt dẻo thơm, rau củ tươi ngon", dishes: "1 món", time: "10-15 phút" },
+  { id: 22, name: "Chả Giò Chay", rating: 4.5, price: "35.000 VNĐ", image: chaGioChay, description: "Chả giò giòn rụm, nhân nấm và miến hấp dẫn", dishes: "1 món", time: "10-15 phút" },
 ];
 
 const MON_MAN = [
