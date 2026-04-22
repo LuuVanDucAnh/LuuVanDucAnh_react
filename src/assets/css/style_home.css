@@ -1,132 +1,164 @@
-/* CONTAINER */
-.home_container {
-    max-width: 1300px;
-    margin: 0 auto;
-    padding: 20px 10px;
-}
-/* CONTAINER */
-.home_container {
-    max-width: 1300px;
-    margin: 0 auto;
-    padding: 20px 10px;
-}
-/* ---------------- SLIDE ---------------- */
-.slide {
-    position: relative;
-    width: 100%;
-    height: 300px;
-    border-radius: 10px;
-    overflow: hidden;
-    margin-bottom: 20px;
-    background: #ccc;
-}
-body{
-    margin: 0;
+.home_content {
+    padding: 30px 0 60px;
 }
 
-.slide img {
+/* Hero Slider */
+.hero_slider {
+    margin-bottom: 50px;
+}
+
+.slider_container {
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+    height: 450px;
+    box-shadow: var(--shadow);
+}
+
+.slider_track {
+    width: 100%;
+    height: 100%;
+}
+
+.slider_track img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
-.slide_btn {
+.slider_arrow {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    border: none;
-    background: rgba(255,255,255,0.7);
-    cursor: pointer;
+    width: 45px;
+    height: 45px;
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    cursor: pointer;
     font-size: 18px;
+    color: var(--text-dark);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 10;
+    transition: all 0.2s;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.slide_btn_prev {
-    left: 10px;
+.slider_arrow:hover {
+    background: var(--primary-color);
+    color: white;
 }
 
-.slide_btn_next {
-    right: 10px;
+.prev_arrow { left: 20px; }
+.next_arrow { right: 20px; }
+
+/* Services Section */
+.services_section {
+    margin-bottom: 60px;
 }
 
-/* ---------------- SERVICE ---------------- */
-.service {
-    margin: 20px 0;
+.service_grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    gap: 25px;
 }
 
-.service_item {
+.service_card {
+    background: var(--white);
+    padding: 25px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
     display: flex;
     align-items: center;
-    padding: 15px;
-    background: #fff;
-    border-radius: 15px;
-    box-shadow: 0 10px 10px #ddd;
-    text-align: left;
-    gap: 15px;
+    gap: 20px;
+    transition: transform 0.3s;
 }
 
-.service_item i {
-    font-size: 40px;
-    color: #f08550;
+.service_card:hover {
+    transform: translateY(-5px);
 }
 
-.service_content h3 {
-    color: #f08550;
+.service_icon {
+    font-size: 32px;
+    color: var(--primary-color);
+    flex-shrink: 0;
+}
+
+.service_info h4 {
     font-size: 16px;
+    font-weight: 700;
     margin-bottom: 5px;
+    color: var(--text-dark);
 }
 
-.service_content p {
-    color: #707070;
+.service_info p {
     font-size: 13px;
+    color: var(--text-grey);
     line-height: 1.4;
 }
 
-/* ---------------- PRODUCT ---------------- */
-.product_section {
-    margin-top: 30px;
+/* Food Category Sections */
+.food_category_section {
+    margin-bottom: 60px;
 }
 
-.product_title {
+.section_header {
     text-align: center;
-    font-size: 20px;
-    margin-bottom: 20px;
-    position: relative;
+    margin-bottom: 35px;
 }
 
-.product_title::after {
-    content: "";
-    width: 100px;
-    height: 2px;
-    background: #f08550;
-    display: block;
-    margin: 5px auto;
+.section_title {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-.product_list {
+.title_underline {
+    width: 60px;
+    height: 3px;
+    background: var(--primary-color);
+    margin: 10px auto 0;
+    border-radius: 2px;
+}
+
+.product_grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
 }
 
-/* RESPONSIVE */
-@media (max-width: 1024px) {
-    .product_list {
+/* Responsive */
+@media (max-width: 1200px) {
+    .service_grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-@media (max-width: 600px) {
-    .product_list {
+@media (max-width: 991px) {
+    .slider_container {
+        height: 350px;
+    }
+    .product_grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .service_grid {
+        grid-template-columns: 1fr;
+    }
+    .slider_container {
+        height: 250px;
+    }
+}
+
+@media (max-width: 576px) {
+    .product_grid {
         grid-template-columns: 1fr;
     }
 }
+

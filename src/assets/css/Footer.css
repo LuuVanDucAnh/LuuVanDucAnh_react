@@ -1,222 +1,235 @@
 .footer {
   background-color: #f7f7f7;
-  border-top: 5px solid #e07444;
-  color: #333;
-  font-family: inherit;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 15px;
+  border-top: 5px solid var(--primary-color);
+  color: var(--text-dark);
+  padding: 40px 0 20px;
 }
 
 .footer_top {
-  border-bottom: 1px solid #e5e5e5;
-  padding: 20px 0;
-}
-
-.footer_logo_container {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 40px;
+}
+
+.footer_logo {
+  padding-right: 40px;
+}
+
+.border_right {
+  border-right: 1px solid #e0e0e0;
 }
 
 .footer_logo img {
-  width: 150px;
+  width: 140px;
   height: auto;
 }
 
-.vertical-line {
-  width: 1px;
-  height: 80px;
-  background-color: #e5e5e5;
-  margin: 0 40px;
-}
-
-.footer_subscribe {
+.footer_email {
+  flex: 1;
   display: flex;
   align-items: center;
-  gap: 20px;
+  justify-content: flex-end;
+  gap: 30px;
 }
 
-.footer_subscribe_text h3 {
-  font-size: 20px;
-  margin: 0 0 5px 0;
-  color: #333;
+.footer_email_text h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 5px;
 }
 
-.footer_subscribe_text p {
-  margin: 0;
-  color: #666;
+.footer_email_text p {
   font-size: 14px;
+  color: var(--text-grey);
 }
 
 .footer_form {
   display: flex;
-  align-items: center;
-  background-color: #fff;
-  border-radius: 30px;
+  background: white;
   padding: 5px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  border-radius: 30px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  width: 400px;
 }
 
 .footer_form input {
+  flex: 1;
   border: none;
-  background: transparent;
   padding: 10px 20px;
-  font-size: 14px;
   outline: none;
-  width: 250px;
+  font-size: 14px;
+  background: transparent;
 }
 
 .footer_form button {
-  background-color: #e07444;
-  color: #fff;
+  background: var(--primary-color);
+  color: white;
   border: none;
   padding: 10px 25px;
   border-radius: 25px;
-  font-size: 14px;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 10px;
-  transition: background-color 0.3s;
+  transition: background 0.3s;
 }
 
 .footer_form button:hover {
-  background-color: #d16b3d;
+  background: var(--primary-hover);
 }
 
 .footer_content {
-  padding: 40px 0;
+  margin-bottom: 30px;
 }
 
 .widget_row {
-  display: flex;
-  justify-content: space-between;
-  gap: 30px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+  gap: 40px;
 }
 
-.widget_col {
-  flex: 1;
-  min-width: 200px;
-  margin-bottom: 20px;
-}
-
-.widget_col h3 {
+.widget_title {
   font-size: 16px;
-  margin-bottom: 20px;
-  color: #000;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 25px;
+  color: var(--text-dark);
   position: relative;
   display: inline-block;
-  padding-bottom: 5px;
+  padding-bottom: 8px;
 }
 
-.widget_col h3::after {
+.widget_title::after {
   content: '';
   position: absolute;
-  left: 0;
   bottom: 0;
-  width: 100%;
+  left: 0;
+  width: 40px;
   height: 2px;
-  background-color: #e07444;
+  background: var(--primary-color);
 }
 
-/* Remove about_col and contact_col width overrides if we want them perfectly even, or just keep flex: 1 */
-.about_col {
-  flex: 1.2;
-}
-
-.widget_col p {
-  color: #333;
-  line-height: 1.8;
+.widget_row_col_content p {
   font-size: 14px;
-  margin-bottom: 15px;
+  color: var(--text-grey);
+  line-height: 1.6;
+  margin-bottom: 20px;
 }
 
-.social_icons {
+.widget_social {
   display: flex;
-  gap: 10px;
-  margin-top: 15px;
+  gap: 12px;
 }
 
-.social_icons a {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.widget_social_item a {
   width: 35px;
   height: 35px;
+  border: 1px solid #ddd;
   border-radius: 50%;
-  border: 1px solid #333;
-  color: #333;
-  text-decoration: none;
-  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-grey);
   transition: all 0.3s;
 }
 
-.social_icons a:hover {
-  background-color: #e07444;
-  color: #fff;
-  border-color: #e07444;
+.widget_social_item a:hover {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+  transform: translateY(-3px);
 }
 
-.widget_col ul {
+.widget_contact {
   list-style: none;
-  padding: 0;
-  margin: 0;
 }
 
-.widget_col ul li {
-  margin-bottom: 15px;
-  color: #333;
+.widget_contact_item {
+  margin-bottom: 12px;
+}
+
+.widget_contact_item a {
   font-size: 14px;
-  cursor: pointer;
-  transition: color 0.3s;
+  color: var(--text-grey);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.2s;
 }
 
-.widget_col ul li i {
-  margin-right: 8px;
+.widget_contact_item a:hover {
+  color: var(--primary-color);
+  padding-left: 5px;
+}
+
+.widget_contact_item i {
   font-size: 12px;
-  transition: transform 0.3s;
 }
 
-.widget_col ul li:hover {
-  color: #e07444;
-}
-
-.widget_col ul li:hover i {
-  transform: translateX(3px);
-}
-
-.contact_col {
-  flex: 1.2;
+.contact {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 .contact_item {
   display: flex;
-  margin-bottom: 20px;
-  align-items: center;
+  gap: 15px;
+  align-items: flex-start;
 }
 
-.icon_circle {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 35px;
-  height: 35px;
+.contact_item_icon {
+  width: 32px;
+  height: 32px;
+  background: rgba(240, 133, 80, 0.1);
+  color: var(--primary-color);
   border-radius: 50%;
-  border: 1px solid #333;
-  color: #333;
-  margin-right: 15px;
-  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 14px;
+  flex-shrink: 0;
 }
 
-.contact_item p {
-  margin: 0;
+.contact_content span {
   font-size: 14px;
-  line-height: 1.5;
+  color: var(--text-grey);
+  line-height: 1.4;
 }
+
+/* Responsive */
+@media (max-width: 991px) {
+  .footer_top {
+    flex-direction: column;
+    text-align: center;
+    gap: 20px;
+  }
+  .border_right {
+    border-right: none;
+    padding-right: 0;
+  }
+  .footer_email {
+    flex-direction: column;
+    width: 100%;
+    gap: 15px;
+  }
+  .footer_form {
+    width: 100%;
+    max-width: 400px;
+  }
+  .widget_row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  .widget_row {
+    grid-template-columns: 1fr;
+  }
+}
+
+
