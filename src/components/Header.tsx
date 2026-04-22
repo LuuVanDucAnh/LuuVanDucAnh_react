@@ -39,19 +39,26 @@ const Header = () => {
             <ul className="header_list">
 
               <li className="account">
-                <i className="fa-solid fa-user"></i>
+                <i className="fa-solid fa-user user_icon_main"></i>
 
-                <div className="text text_tk" style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                  Đăng nhập/Đăng ký <i className="fa-solid fa-caret-down" style={{ fontSize: "14px", color: "black" }}></i>
+                <div className="text text_tk">
+                  Đăng nhập / Đăng ký
                 </div>
 
                 <ul className="account_manager">
-                  <li><Link to="/login">Đăng nhập</Link></li>
-                  <li><Link to="/register">Đăng ký</Link></li>
-                  <li><Link to="/admin">Quản lý</Link></li>
-                  <li><Link to="/">Đăng xuất</Link></li>
+                  <li>
+                    <Link to="/login">
+                      <i className="fa-solid fa-right-to-bracket"></i> Đăng nhập
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/register">
+                      <i className="fa-solid fa-user-plus"></i> Đăng ký
+                    </Link>
+                  </li>
                 </ul>
               </li>
+
 
               <li className="cart">
                 <Link to="/cart">

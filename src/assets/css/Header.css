@@ -135,12 +135,23 @@ a {
 
 .text_tk {
     font-size: 14px;
+    font-weight: 400;
     cursor: pointer;
+    color: black;
 }
 
 /* ACCOUNT DROPDOWN */
 .account {
     position: relative;
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+}
+
+.user_icon_main {
+    color: var(--orange) !important;
+    font-size: 28px !important;
 }
 
 .account:hover .account_manager {
@@ -149,27 +160,42 @@ a {
 
 .account_manager {
     list-style: none;
-    width: 180px;
+    width: 220px;
     position: absolute;
     top: 100%;
-    right: 0;
+    left: -20px;
     background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0px 5px 10px #ddd;
+    border-radius: 15px;
+    box-shadow: 0px 10px 25px rgba(0,0,0,0.1);
     display: none;
     overflow: hidden;
+    padding: 10px 0;
+    z-index: 1000;
 }
 
 .account_manager li a {
-    display: block;
-    padding: 8px 10px;
-    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #333;
+    transition: all 0.2s;
+}
+
+.account_manager li a i {
+    font-size: 18px !important;
+    color: var(--orange) !important;
+    width: 20px;
+    text-align: center;
 }
 
 .account_manager li a:hover {
-    background-color: #f0f0f0;
+    background-color: #f8f9fa;
     color: var(--orange);
 }
+
 
 /* CART */
 .cart a {
