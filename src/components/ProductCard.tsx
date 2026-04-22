@@ -1,4 +1,4 @@
-import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import "../assets/css/ProductCard.css";
 
 type Product = {
@@ -13,6 +13,12 @@ type Product = {
 };
 
 const ProductCard = ({ product }: { product: Product }) => {
+  const navigate = useNavigate();
+
+  const handleViewRestaurant = () => {
+    navigate("/restaurant", { state: { restaurant: product } });
+  };
+
   return (
     <div className="product_card">
       <div className="product_image_container">
@@ -41,8 +47,8 @@ const ProductCard = ({ product }: { product: Product }) => {
           </div>
         </div>
 
-        <button className="view_menu_btn">
-          <i className="fa-solid fa-utensils"></i> Xem thực đơn
+        <button className="view_menu_btn" onClick={handleViewRestaurant}>
+          <i className="fa-solid fa-store"></i> Xem nhà hàng
         </button>
       </div>
     </div>
