@@ -20,36 +20,38 @@ const ProductCard = ({ product }: { product: Product }) => {
   };
 
   return (
-    <div className="product_card">
-      <div className="product_image_container">
-        <img src={product.image} alt={product.name} className="product_image" />
-        <div className="rating_badge">
+    <div className="restaurant-card" onClick={handleViewRestaurant}>
+      <div className="restaurant-image">
+        <img src={product.image} alt={product.name} />
+        <div className="restaurant-rating">
           <i className="fa-solid fa-star"></i> {product.rating}
         </div>
       </div>
 
-      <div className="product_info">
-        <h3 className="product_name">{product.name}</h3>
-        <p className="product_description">{product.description || "Chuyên các món ăn thơm ngon, hấp dẫn đạt tiêu chuẩn"}</p>
+      <div className="restaurant-info">
+        <h3 className="restaurant-name">{product.name}</h3>
+        <p className="restaurant-description">{product.description || "Chuyên các món ăn thơm ngon, hấp dẫn đạt tiêu chuẩn"}</p>
 
-        <div className="product_meta">
-          <div className="meta_item">
+        <div className="restaurant-details">
+          <div className="restaurant-detail-item">
             <i className="fa-solid fa-utensils"></i>
             <span>{product.dishes || "8 món"}</span>
           </div>
-          <div className="meta_item">
+          <div className="restaurant-detail-item">
             <i className="fa-regular fa-clock"></i>
             <span>{product.time || "30-45 phút"}</span>
           </div>
-          <div className="meta_item">
+          <div className="restaurant-detail-item">
             <i className="fa-solid fa-wallet"></i>
             <span>Tối thiểu: {product.price}</span>
           </div>
         </div>
 
-        <button className="view_menu_btn" onClick={handleViewRestaurant}>
-          <i className="fa-solid fa-store"></i> Xem nhà hàng
-        </button>
+        <div className="restaurant-actions">
+          <button className="btn-view-menu" onClick={(e) => { e.stopPropagation(); handleViewRestaurant(); }}>
+            <i className="fa-solid fa-store"></i> Xem nhà hàng
+          </button>
+        </div>
       </div>
     </div>
   );
