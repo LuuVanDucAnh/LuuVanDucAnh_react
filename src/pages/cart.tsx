@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 import { CartItem, getCart, saveCart, getTotal } from "../utils/cart";
 import "../assets/css/style_cart.css";
 
@@ -46,68 +48,62 @@ const Cart = () => {
   };
 
   return (
-    <div className="cart_page">
-      <h2>Giỏ hàng của bạn</h2>
+    <>
+      <Header />
+      <div className="main">
+        <div className="container">
+          <div className="cart-page">
+            <h2 className="cart-title">Giỏ hàng của bạn</h2>
 
-      {cart.length === 0 ? (
-        <p>Giỏ hàng trống</p>
-      ) : (
-        <>
-          <table className="cart_table">
-            <thead>
-              <tr>
-                <th>Ảnh</th>
-                <th>Tên</th>
-                <th>Giá</th>
-                <th>Số lượng</th>
-                <th>Tổng</th>
-                <th>Xóa</th>
-              </tr>
-            </thead>
+            {cart.length === 0 ? (
+              <p className="empty-cart-msg">Giỏ hàng trống. Vui lòng thêm sản phẩm!</p>
+            ) : (
+              <div className="cart-manager">
+                <div id="product-list">
+                  {cart.map((item) => (
+                    <div className="cart-item" key={item.id}>
+                      <div className="cart-item-image">
+                        <img src={item.image} alt={item.name} />
+                      </div>
+                      
+                      <div className="cart-item-details">
+                        <h3>{item.name}</h3>
+                        <p>Giá: {item.price.toLocaleString("vi-VN")}đ</p>
+                        
+                        <div className="quantity-controls">
+                          <button onClick={() => decrease(item.id)}>-</button>
+                          <span>{item.quantity}</span>
+                          <button onClick={() => increase(item.id)}>+</button>
+                        </div>
+                      </div>
+                      
+                      <div className="cart-item-actions">
+                        <button onClick={() => removeItem(item.id)}>
+                          Xóa
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
 
-            <tbody>
-              {cart.map(item => (
-                <tr key={item.id}>
-                  <td>
-                    <img src={item.image} alt={item.name} width={60} />
-                  </td>
-
-                  <td>{item.name}</td>
-
-                  <td>{item.price.toLocaleString()}đ</td>
-
-                  <td>
-                    <button onClick={() => decrease(item.id)}>-</button>
-                    <span>{item.quantity}</span>
-                    <button onClick={() => increase(item.id)}>+</button>
-                  </td>
-
-                  <td>
-                    {(item.price * item.quantity).toLocaleString()}đ
-                  </td>
-
-                  <td>
-                    <button onClick={() => removeItem(item.id)}>
-                      Xóa
+                <div className="total_price">
+                  <div className="total_price_text">
+                    <h3>Tổng Tiền:</h3>
+                    <p>{getTotal(cart).toLocaleString("vi-VN")}đ</p>
+                  </div>
+                  <div className="total_price_btn">
+                    <button className="btn_order">
+                      Thanh toán
                     </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <div className="cart_total">
-            <h3>
-              Tổng tiền: {getTotal(cart).toLocaleString()}đ
-            </h3>
-
-            <button className="btn_checkout">
-              Thanh toán
-            </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
-        </>
-      )}
-    </div>
+        </div>
+      </div>
+      <Footer />
+    </>
   );
 };
 
