@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Thay đổi URL và cổng này thành URL chạy API thật của bạn
-const BASE_URL = 'http://localhost:49560/api'; 
+const BASE_URL = 'https://localhost:44338/api'; 
 
 const axiosClient = axios.create({
   baseURL: BASE_URL,

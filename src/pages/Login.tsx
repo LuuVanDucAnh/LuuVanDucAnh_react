@@ -32,8 +32,8 @@ const Login: React.FC = () => {
 
         try {
             const response = await axiosClient.post('/Auth/login', {
-                Username: username,
-                Password: password
+                username: username,
+                password: password
             });
 
             // API của bạn trả về thông qua ApiResponse.Ok(responseData, message)
