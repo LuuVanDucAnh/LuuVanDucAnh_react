@@ -250,11 +250,32 @@
 }
 
 .order-detail-modal {
-    max-width: 550px !important; /* Bé lại một chút */
+    max-width: 550px !important;
     width: 95%;
+    max-height: 85vh; /* Giới hạn chiều cao */
+    overflow-y: auto; /* Hiện thanh cuộn khi nội dung dài */
     padding: 25px !important;
     border-radius: 15px !important;
-    margin: 0 !important; /* Bỏ margin auto để Flexbox căn giữa */
+    margin: 0 !important;
+}
+
+/* Tùy chỉnh thanh cuộn cho modal */
+.order-detail-modal::-webkit-scrollbar {
+    width: 6px;
+}
+
+.order-detail-modal::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.order-detail-modal::-webkit-scrollbar-thumb {
+    background: #f08550;
+    border-radius: 10px;
+}
+
+.order-detail-modal::-webkit-scrollbar-thumb:hover {
+    background: #e67339;
 }
 
 .order-detail-modal h2 {
