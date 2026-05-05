@@ -65,6 +65,7 @@ const RestaurantDetail = () => {
         price: dish.price,
         image: dish.image,
         quantity: quantity,
+        restaurantName: restaurant?.name || "Nhà Hàng DA Food"
       });
     }
     saveCart(currentCart);

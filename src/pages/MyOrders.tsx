@@ -1,49 +1,14 @@
+import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { getOrders } from "../utils/order";
+import { getOrders, Order } from "../utils/order";
 import "../assets/css/style_my_orders.css";
-
-const MOCK_ORDERS = [
-  { 
-    id: "ORD1777951428457", 
-    date: "10:23 05/05/2026", 
-    status: "new", 
-    total: 60000, 
-    restaurant: "Nhà Hàng Chay Tâm An",
-    items: [
-      { name: "Nấm sốt đông x3", quantity: 1, price: 60000 }
-    ],
-    customerName: "Nguyễn Duy Huy",
-    phone: "0987654321",
-    address: "á",
-    note: "aa",
-    payment: "Thanh toán khi nhận hàng (COD)"
-  },
-  { 
-    id: "ORD177684267409", 
-    date: "14:24 22/04/2026", 
-    status: "assigned", 
-    total: 180000, 
-    restaurant: "Nhà Hàng Gia Đình",
-    items: [
-      { name: "Gà chiên mắm x2", quantity: 1, price: 120000 },
-      { name: "Sườn ram mặn x2", quantity: 1, price: 60000 }
-    ],
-    customerName: "Nguyễn Duy Huy",
-    phone: "0987654321",
-    address: "Khoái Châu",
-    note: "",
-    payment: "Thanh toán khi nhận hàng (COD)"
-  }
-];
-
-import { getOrders } from "../utils/order";
 
 const MyOrders: React.FC = () => {
   const [filter, setFilter] = useState("all");
-  const [selectedOrder, setSelectedOrder] = useState<any>(null);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [ordersData, setOrdersData] = useState<any[]>([]);
+  const [ordersData, setOrdersData] = useState<Order[]>([]);
 
   useEffect(() => {
     // Lấy đơn từ localStorage
