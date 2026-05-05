@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import OrderModal from "../components/Modal";
 import { getCart, saveCart } from "../utils/cart";
 import "../assets/css/style_restaurant.css";
 
@@ -48,24 +49,25 @@ const RestaurantDetail = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const restaurant = location.state?.restaurant;
+  const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
 
   // Thêm món vào giỏ
-  const addToCart = (dish: Dish) => {
+  const addToCart = (dish: Dish, quantity: number = 1) => {
     const currentCart = getCart();
     const existingItem = currentCart.find((item) => item.id === String(dish.id));
     if (existingItem) {
-      existingItem.quantity += 1;
+      existingItem.quantity += quantity;
     } else {
       currentCart.push({
         id: String(dish.id),
         name: dish.name,
         price: dish.price,
         image: dish.image,
-        quantity: 1,
+        quantity: quantity,
       });
     }
     saveCart(currentCart);
-    alert(`Đã thêm ${dish.name} vào giỏ hàng`);
+    alert(`Đã thêm ${quantity} ${dish.name} vào giỏ hàng`);
   };
 
   return (
@@ -116,8 +118,8 @@ const RestaurantDetail = () => {
                   <img src={dish.image} alt={dish.name} />
                   <h3>{dish.name}</h3>
                   <p>{dish.price.toLocaleString("vi-VN")}đ</p>
-                  <button onClick={() => addToCart(dish)}>
-                    <i className="fa-solid fa-cart-shopping"></i> Thêm vào giỏ
+                  <button onClick={() => setSelectedDish(dish)}>
+                    <i className="fa-solid fa-cart-shopping"></i> Đặt hàng
                   </button>
                 </div>
               ))}
@@ -126,6 +128,11 @@ const RestaurantDetail = () => {
         </div>
       </div>
       <Footer />
+      <OrderModal 
+        dish={selectedDish} 
+        onClose={() => setSelectedDish(null)} 
+        onAddToCart={addToCart} 
+      />
     </>
   );
 };

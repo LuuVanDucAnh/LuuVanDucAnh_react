@@ -14,10 +14,10 @@
 
 /* CONTENT */
 .modal-content {
-    width: 500px;
-    background: #fff8f0;
-    border-radius: 15px;
-    padding: 20px;
+    width: 600px;
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 20px 30px;
     position: relative;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     animation: fadeIn 0.3s ease;
@@ -38,8 +38,8 @@
 /* CLOSE BUTTON */
 .close-modal {
     position: absolute;
-    top: 10px;
-    right: 15px;
+    top: 15px;
+    right: 20px;
     font-size: 24px;
     cursor: pointer;
     color: #888;
@@ -54,23 +54,30 @@
 /* TITLE */
 .modal-content h2 {
     text-align: center;
-    margin-bottom: 20px;
+    margin-top: 0;
+    margin-bottom: 15px;
     color: #f08550;
+    font-size: 22px;
+}
+
+.modal-divider {
+    border: none;
+    border-top: 1px solid #eee;
+    margin-bottom: 20px;
 }
 
 /* BODY */
 .modal-body {
     display: flex;
-    gap: 20px;
+    gap: 25px;
 }
 
 /* IMAGE */
 .modal-image {
-    width: 200px;
-    height: 200px;
+    width: 250px;
+    height: 160px;
     overflow: hidden;
     border-radius: 10px;
-    border: 1px solid #ccc;
 }
 
 .modal-image img {
@@ -87,53 +94,103 @@
     gap: 15px;
 }
 
-.modal-info p {
-    font-size: 18px;
+.modal-price {
+    font-size: 16px;
+    color: #555;
+}
+.modal-price span {
     color: #f08550;
-    font-weight: 600;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.modal-desc {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.4;
 }
 
 /* QUANTITY */
+.modal-quantity-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 14px;
+    color: #333;
+}
+
 .modal-quantity {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.modal-quantity button {
-    padding: 5px 10px;
-    border: none;
-    background-color: #f08550;
-    color: white;
-    border-radius: 5px;
+.btn-qty {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #f08550;
+    background-color: transparent;
+    color: #f08550;
+    border-radius: 50%;
     cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.2s;
 }
 
-.modal-quantity button:hover {
-    background-color: #e67339;
+.btn-qty:hover {
+    background-color: #f08550;
+    color: white;
 }
 
 .modal-quantity input {
-    width: 40px;
+    width: 50px;
     text-align: center;
     border: 1px solid #ccc;
     border-radius: 5px;
     height: 30px;
+    font-size: 16px;
+}
+
+.modal-quantity input[type="number"]::-webkit-inner-spin-button,
+.modal-quantity input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* TOTAL */
+.modal-total {
+    font-size: 16px;
+    color: #333;
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.modal-total span {
+    color: #f08550;
+    font-weight: bold;
+    font-size: 18px;
 }
 
 /* BUTTON ADD CART */
-.modal-info > button {
-    padding: 10px;
+.btn-add-cart {
+    padding: 12px;
     border: none;
     background-color: #f08550;
     color: white;
     border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
+    font-size: 14px;
     transition: 0.3s;
+    width: 100%;
 }
 
-.modal-info > button:hover {
+.btn-add-cart:hover {
     background-color: #e67339;
     transform: translateY(-2px);
 }
