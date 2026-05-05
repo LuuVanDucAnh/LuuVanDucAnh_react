@@ -11,6 +11,9 @@ const Register: React.FC = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [phone, setPhone] = useState('');
+    const [licensePlate, setLicensePlate] = useState('');
+    const [maCode, setMaCode] = useState('');
     const [accountType, setAccountType] = useState('khachhang');
 
     const navigate = useNavigate();
@@ -18,41 +21,32 @@ const Register: React.FC = () => {
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        if (fullName === "" || username === "" || password === "" || confirmPassword === "") {
-            alert("Vui lòng điền đầy đủ thông tin!");
-            return;
-        }
-
         if (password !== confirmPassword) {
             alert("Mật khẩu không khớp!");
             return;
         }
 
+        // Map role string to enum value expected by Backend
+        // KhachHang = 1, NhanVien = 2, Shipper = 3
+        let roleValue = 1;
+        if (accountType === 'nhanvien') roleValue = 2;
+        if (accountType === 'shipper') roleValue = 3;
+
+        const payload = {
+            Username: username,
+            Password: password,
+            VaiTro: roleValue,
+            HoTen: fullName,
+            SoDienThoai: phone,
+            DiaChi: null, // Bỏ nhập địa chỉ theo yêu cầu
+            BienSoXe: accountType === 'shipper' ? licensePlate : null,
+            MaCode: accountType === 'nhanvien' ? maCode : null
+        };
+
         try {
-            // Gửi yêu cầu đăng ký lên API Backend
-            const response = await axiosClient.post('/Auth/register', {
-                Username: username,
-                MatKhau: password,
-                FullName: fullName,
-                Role: accountType // 'khachhang', 'nhanvien', 'shipper'
-            });
+            const response = await axiosClient.post('/Auth/register', payload);
 
             if (response.data.resultCode > 0) {
-                // Nếu là nhà hàng, khởi tạo thông tin nhà hàng ở localStorage (tuỳ chọn)
-                if (accountType === "nhanvien") {
-                    let restaurants = JSON.parse(localStorage.getItem('restaurants') || '[]');
-                    const newRestaurant = {
-                        id: 'rest_' + Date.now(),
-                        name: fullName,
-                        ownerUsername: username,
-                        image: '/images/Logo_icon.png',
-                        rating: 5.0,
-                        products: []
-                    };
-                    restaurants.push(newRestaurant);
-                    localStorage.setItem('restaurants', JSON.stringify(restaurants));
-                }
-
                 alert("Đăng ký thành công!");
                 navigate('/login');
             } else {
@@ -60,7 +54,8 @@ const Register: React.FC = () => {
             }
         } catch (error: any) {
             console.error("Lỗi đăng ký:", error);
-            const errorMessage = error.response?.data?.message || "Có lỗi xảy ra khi kết nối tới server!";
+            const errorMessage = error.response?.data?.message || 
+                               (error.response?.data?.errors ? "Dữ liệu không hợp lệ (kiểm tra SĐT hoặc mã code)" : "Không thể kết nối tới Server!");
             alert(errorMessage);
         }
     };
@@ -73,87 +68,34 @@ const Register: React.FC = () => {
                     <div className="logo_sign">
                         <img src={logo} alt="Logo DA FOOD" />
                     </div>
-                    <div className="sign">
+                    <div className="sign" style={{ width: '400px' }}>
                         <h2>Đăng ký tài khoản</h2>
                         <form className="infor_account" onSubmit={handleRegister}>
-                            <input 
-                                autoComplete="off" 
-                                type="text" 
-                                id="fullname" 
-                                placeholder="Nhập họ và tên" 
-                                required 
-                                value={fullName}
-                                onChange={(e) => setFullName(e.target.value)}
-                            />
-                            <br />
-                            <input 
-                                autoComplete="off" 
-                                type="text" 
-                                id="tk" 
-                                placeholder="Nhập tên tài khoản" 
-                                required 
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                            />
-                            <br />
-                            <input 
-                                autoComplete="off" 
-                                type="password" 
-                                id="mk" 
-                                placeholder="Nhập mật khẩu" 
-                                required 
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
-                            <br />
-                            <input 
-                                autoComplete="off" 
-                                type="password" 
-                                id="mk2" 
-                                placeholder="Nhập lại mật khẩu" 
-                                required 
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                            />
-                            <br />
+                            <input type="text" placeholder="Họ và tên" required value={fullName} onChange={(e) => setFullName(e.target.value)} />
+                            <input type="text" placeholder="Tên đăng nhập" required value={username} onChange={(e) => setUsername(e.target.value)} />
+                            <input type="tel" placeholder="Số điện thoại (10 số, bắt đầu bằng 0)" required value={phone} onChange={(e) => setPhone(e.target.value)} />
+                            <input type="password" placeholder="Mật khẩu" required value={password} onChange={(e) => setPassword(e.target.value)} />
+                            <input type="password" placeholder="Nhập lại mật khẩu" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
                             
                             <div className="account-type-selection">
-                                <label className="account-type-label">Chọn loại tài khoản:</label>
+                                <label className="account-type-label">Chọn vai trò:</label>
                                 <div className="account-type-options">
                                     <label className="account-type-option">
-                                        <input 
-                                            type="radio" 
-                                            name="accountType" 
-                                            value="khachhang" 
-                                            checked={accountType === 'khachhang'}
-                                            onChange={(e) => setAccountType(e.target.value)}
-                                        />
+                                        <input type="radio" name="accountType" value="khachhang" checked={accountType === 'khachhang'} onChange={(e) => setAccountType(e.target.value)} />
                                         <div className="option-card">
                                             <i className="fa-solid fa-user"></i>
                                             <span>Khách hàng</span>
                                         </div>
                                     </label>
                                     <label className="account-type-option">
-                                        <input 
-                                            type="radio" 
-                                            name="accountType" 
-                                            value="nhanvien"
-                                            checked={accountType === 'nhanvien'}
-                                            onChange={(e) => setAccountType(e.target.value)}
-                                        />
+                                        <input type="radio" name="accountType" value="nhanvien" checked={accountType === 'nhanvien'} onChange={(e) => setAccountType(e.target.value)} />
                                         <div className="option-card">
                                             <i className="fa-solid fa-utensils"></i>
                                             <span>Nhà hàng</span>
                                         </div>
                                     </label>
                                     <label className="account-type-option">
-                                        <input 
-                                            type="radio" 
-                                            name="accountType" 
-                                            value="shipper"
-                                            checked={accountType === 'shipper'}
-                                            onChange={(e) => setAccountType(e.target.value)}
-                                        />
+                                        <input type="radio" name="accountType" value="shipper" checked={accountType === 'shipper'} onChange={(e) => setAccountType(e.target.value)} />
                                         <div className="option-card">
                                             <i className="fa-solid fa-truck"></i>
                                             <span>Shipper</span>
@@ -161,11 +103,19 @@ const Register: React.FC = () => {
                                     </label>
                                 </div>
                             </div>
-                            <br />
 
-                            <button type="submit">Đăng ký</button>
-                            <br />
-                            <span>Bạn đã có tài khoản? <Link to="/login">Đăng nhập</Link></span>
+                            {/* Trường nhập thêm dựa trên vai trò */}
+                            {accountType === 'shipper' && (
+                                <input type="text" placeholder="Biển số xe" required value={licensePlate} onChange={(e) => setLicensePlate(e.target.value)} />
+                            )}
+                            {accountType === 'nhanvien' && (
+                                <input type="text" placeholder="Mã code nhà hàng (Để được cấp quyền)" required value={maCode} onChange={(e) => setMaCode(e.target.value)} />
+                            )}
+
+                            <button type="submit" style={{ marginTop: '10px' }}>Đăng ký ngay</button>
+                            <div style={{ marginTop: '15px' }}>
+                                <span>Đã có tài khoản? <Link to="/login">Đăng nhập</Link></span>
+                            </div>
                         </form>
                     </div>
                 </div>
