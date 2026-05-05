@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-import axiosClient from "../utils/api";
-import "../assets/css/style_my_orders.css";
+import React, { useState, useEffect } from 'react';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import axiosClient from '../utils/api';
+import '../assets/css/style_my_orders.css';
 
-const MyOrders: React.FC = () => {
-  const [filter, setFilter] = useState("all");
+export default function MyOrders() {
+  const [filter, setFilter] = useState('all');
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ordersData, setOrdersData] = useState<any[]>([]);
@@ -18,60 +18,57 @@ const MyOrders: React.FC = () => {
   const fetchMyOrders = async () => {
     setLoading(true);
     try {
-      // Gọi API lấy danh sách đơn hàng của khách hiện tại
-      // Backend hỗ trợ lọc qua query string ?status=...
-      const statusParam = filter === "all" ? "" : `?status=${filter}`;
+      const statusParam = filter === 'all' ? '' : `?status=${filter}`;
       const res = await axiosClient.get(`/orders/Order/laydanhsachdonhang${statusParam}`);
       if (res.data.success) {
         setOrdersData(res.data.data);
       }
     } catch (error) {
-      console.error("Lỗi khi tải đơn hàng:", error);
+      console.error('Lỗi khi tải đơn hàng:', error);
     } finally {
       setLoading(false);
     }
   };
 
   const handleCancelOrder = async (orderId: number) => {
-    if (window.confirm("Bạn có chắc chắn muốn hủy đơn hàng này?")) {
+    if (window.confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')) {
       try {
         const res = await axiosClient.put(`/orders/Order/${orderId}/huydonhangdat`);
         if (res.data.success) {
-          alert("Hủy đơn hàng thành công!");
+          alert('Hủy đơn hàng thành công!');
           fetchMyOrders();
           setIsModalOpen(false);
         }
       } catch (error: any) {
-        alert(error.response?.data?.message || "Lỗi khi hủy đơn hàng");
+        alert(error.response?.data?.message || 'Lỗi khi hủy đơn hàng');
       }
     }
   };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case "ChoXacNhan": return "ĐANG CHỜ";
-      case "DaXacNhan": return "ĐÃ XÁC NHẬN";
-      case "DangChuanBi": return "ĐANG CHUẨN BỊ";
-      case "SanSangGiao": return "SẴN SÀNG";
-      case "DangGiao": return "ĐANG GIAO";
-      case "DaGiao": return "HOÀN THÀNH";
-      case "Huy": return "ĐÃ HỦY";
-      default: return status?.toUpperCase() || "KHÔNG XÁC ĐỊNH";
+      case 'ChoXacNhan': return 'ĐANG CHỜ';
+      case 'DaXacNhan': return 'ĐÃ XÁC NHẬN';
+      case 'DangChuanBi': return 'ĐANG CHUẨN BỊ';
+      case 'SanSangGiao': return 'SẴN SÀNG';
+      case 'DangGiao': return 'ĐANG GIAO';
+      case 'DaGiao': return 'HOÀN THÀNH';
+      case 'Huy': return 'ĐÃ HỦY';
+      default: return status?.toUpperCase() || 'KHÔNG XÁC ĐỊNH';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "ChoXacNhan": return "fa-clock";
-      case "DangChuanBi": return "fa-utensils";
-      case "SanSangGiao": return "fa-check-circle";
-      case "DangGiao": return "fa-truck";
-      case "DaGiao": return "fa-check-double";
-      case "Huy": return "fa-times-circle";
-      default: return "fa-info-circle";
+      case 'ChoXacNhan': return 'fa-clock';
+      case 'DangChuanBi': return 'fa-utensils';
+      case 'SanSangGiao': return 'fa-check-circle';
+      case 'DangGiao': return 'fa-truck';
+      case 'DaGiao': return 'fa-check-double';
+      case 'Huy': return 'fa-times-circle';
+      default: return 'fa-info-circle';
     }
   };
-
 
   const openDetail = (order: any) => {
     setSelectedOrder(order);
@@ -90,17 +87,17 @@ const MyOrders: React.FC = () => {
 
           <div className="orders-filter-tabs">
             {[
-              { id: "all", icon: "fa-list", label: "Tất cả" },
-              { id: "ChoXacNhan", icon: "fa-clock", label: "Đang chờ" },
-              { id: "DangChuanBi", icon: "fa-utensils", label: "Đang nấu" },
-              { id: "SanSangGiao", icon: "fa-check-circle", label: "Sẵn sàng" },
-              { id: "DangGiao", icon: "fa-truck", label: "Đang giao" },
-              { id: "DaGiao", icon: "fa-check-double", label: "Đã giao" },
-              { id: "Huy", icon: "fa-times-circle", label: "Đã hủy" }
+              { id: 'all', icon: 'fa-list', label: 'Tất cả' },
+              { id: 'ChoXacNhan', icon: 'fa-clock', label: 'Đang chờ' },
+              { id: 'DangChuanBi', icon: 'fa-utensils', label: 'Đang nấu' },
+              { id: 'SanSangGiao', icon: 'fa-check-circle', label: 'Sẵn sàng' },
+              { id: 'DangGiao', icon: 'fa-truck', label: 'Đang giao' },
+              { id: 'DaGiao', icon: 'fa-check-double', label: 'Đã giao' },
+              { id: 'Huy', icon: 'fa-times-circle', label: 'Đã hủy' }
             ].map(tab => (
               <button 
                 key={tab.id}
-                className={`filter-tab ${filter === tab.id ? "active" : ""}`}
+                className={`filter-tab ${filter === tab.id ? 'active' : ''}`}
                 onClick={() => setFilter(tab.id)}
               >
                 <i className={`fa-solid ${tab.icon}`}></i> {tab.label}
@@ -110,7 +107,7 @@ const MyOrders: React.FC = () => {
 
           <div className="orders-list-container">
             {loading ? (
-              <p style={{ textAlign: "center", padding: "50px" }}>Đang tải đơn hàng...</p>
+              <p style={{ textAlign: 'center', padding: '50px' }}>Đang tải đơn hàng...</p>
             ) : ordersData.length === 0 ? (
               <div className="empty-orders">
                 <i className="fa-solid fa-folder-open"></i>
@@ -141,7 +138,7 @@ const MyOrders: React.FC = () => {
                     </div>
                     <div className="order-info-row">
                       <i className="fa-solid fa-money-bill-wave"></i>
-                      <span className="order-total">Tổng tiền: {order.tongTien?.toLocaleString("vi-VN")} VNĐ</span>
+                      <span className="order-total">Tổng tiền: {order.tongTien?.toLocaleString('vi-VN')} VNĐ</span>
                     </div>
                   </div>
 
@@ -149,8 +146,8 @@ const MyOrders: React.FC = () => {
                     <button className="btn-view-detail" onClick={() => openDetail(order)}>
                       <i className="fa-solid fa-eye"></i> Xem chi tiết
                     </button>
-                    {order.trangThai === "ChoXacNhan" && (
-                      <button className="btn-cancel-order" style={{ marginLeft: "10px" }} onClick={() => handleCancelOrder(order.maDonHang)}>
+                    {order.trangThai === 'ChoXacNhan' && (
+                      <button className="btn-cancel-order" style={{ marginLeft: '10px' }} onClick={() => handleCancelOrder(order.maDonHang)}>
                         <i className="fa-solid fa-xmark"></i> Hủy đơn
                       </button>
                     )}
@@ -208,17 +205,17 @@ const MyOrders: React.FC = () => {
                 <h4><i className="fa-solid fa-credit-card"></i> Thanh toán</h4>
                 <div className="detail-row">
                   <span className="detail-label">Tổng tiền:</span>
-                  <span className="total-bold">{selectedOrder.tongTien?.toLocaleString("vi-VN")} VNĐ</span>
+                  <span className="total-bold">{selectedOrder.tongTien?.toLocaleString('vi-VN')} VNĐ</span>
                 </div>
               </div>
 
-              <div className="modal-footer-actions" style={{ marginTop: "20px", display: "flex", justifyContent: "flex-end" }}>
-                {selectedOrder.trangThai === "ChoXacNhan" && (
+              <div className="modal-footer-actions" style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
+                {selectedOrder.trangThai === 'ChoXacNhan' && (
                   <button className="btn-cancel-order" onClick={() => handleCancelOrder(selectedOrder.maDonHang)}>
                     <i className="fa-solid fa-xmark"></i> Hủy đơn hàng này
                   </button>
                 )}
-                <button className="btn-view-detail" style={{ marginLeft: "10px" }} onClick={() => setIsModalOpen(false)}>
+                <button className="btn-view-detail" style={{ marginLeft: '10px' }} onClick={() => setIsModalOpen(false)}>
                   Đóng
                 </button>
               </div>
@@ -230,6 +227,4 @@ const MyOrders: React.FC = () => {
       <Footer />
     </>
   );
-};
-
-export default MyOrders;
+}
