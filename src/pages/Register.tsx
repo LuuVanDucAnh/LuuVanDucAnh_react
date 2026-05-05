@@ -43,7 +43,7 @@ const Register: React.FC = () => {
         };
 
         try {
-            const response = await axiosClient.post('/Auth/register', payload);
+            const response = await axiosClient.post('/auth/register', payload);
 
             if (response.data.resultCode > 0) {
                 alert("Đăng ký thành công!");

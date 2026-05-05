@@ -50,7 +50,7 @@ const Login: React.FC = () => {
         // ------------------------------------------
 
         try {
-            const response = await axiosClient.post('/Auth/login', {
+            const response = await axiosClient.post('/auth/login', {
                 Username: username,
                 MatKhau: password
             });
