@@ -6,6 +6,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 
 import MyOrders from "./pages/MyOrders";
+import RestaurantAdmin from "./pages/RestaurantAdmin";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/my-orders" element={<MyOrders />} />
+        <Route path="/restaurant-admin" element={<RestaurantAdmin />} />
       </Routes>
     </BrowserRouter>
   );
