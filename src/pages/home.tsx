@@ -38,13 +38,10 @@ const Home = () => {
     fetchRestaurants();
   }, []);
 
-  // Phân loại nhà hàng theo danh mục (ID từ Database)
   const getRestaurantsByCategory = (catId: number) => {
     return restaurants.filter(r => r.maDanhMuc === catId);
   };
 
-
-const Home = () => {
   return (
     <div className="home">
       <Header />
@@ -91,13 +88,16 @@ const Home = () => {
           </div>
 
           {/* Food Sections */}
-          <FoodSection title="Món Chay" id="mon_chay" products={MON_CHAY} />
-          <FoodSection title="Món Mặn" id="mon_man" products={MON_MAN} />
-          <FoodSection title="Món Lẩu" id="mon_lau" products={MON_LAU} />
-          <FoodSection title="Ăn Vặt" id="an_vat" products={AN_VAT} />
-          <FoodSection title="Hoa Quả" id="hoa_qua" products={HOA_QUA} />
-          <FoodSection title="Nước Uống" id="nuoc_uong" products={NUOC_UONG} />
-
+          {loading ? (
+            <p style={{textAlign: 'center', padding: '50px'}}>Đang tải danh sách nhà hàng...</p>
+          ) : (
+            <>
+              <FoodSection title="Món Mặn (Cơm)" id="mon_man" products={getRestaurantsByCategory(1)} />
+              <FoodSection title="Món Nước" id="mon_nuoc" products={getRestaurantsByCategory(2)} />
+              <FoodSection title="Đồ Uống & Trà Sữa" id="do_uong" products={getRestaurantsByCategory(3)} />
+              <FoodSection title="Đồ Ăn Vặt" id="an_vat" products={getRestaurantsByCategory(4)} />
+            </>
+          )}
         </div>
       </main>
 

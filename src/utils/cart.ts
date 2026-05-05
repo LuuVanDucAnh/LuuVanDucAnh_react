@@ -5,6 +5,7 @@ export interface CartItem {
   quantity: number;
   image: string;
   restaurantName?: string;
+  maNhaHang?: number;
 }
 
 // Lấy giỏ hàng

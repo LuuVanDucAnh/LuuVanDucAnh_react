@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import "../assets/css/style_modal.css";
 
-type Dish = {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  image: string;
-  category: string;
-  popular?: boolean;
+// Kiểu Dish mới từ API
+export type Dish = {
+  maMonAn: number;
+  tenMon: string;
+  moTa: string;
+  gia: number;
+  hinhAnh: string;
+  maDanhMuc?: number;
 };
 
 type OrderModalProps = {
@@ -28,28 +28,31 @@ const OrderModal = ({ dish, onClose, onAddToCart }: OrderModalProps) => {
 
   if (!dish) return null;
 
-  const totalPrice = dish.price * quantity;
+  const totalPrice = dish.gia * quantity;
 
   return (
     <div className="modal" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <span className="close-modal" onClick={onClose}>&times;</span>
 
-        <h2>{dish.name}</h2>
+        <h2>{dish.tenMon}</h2>
         <hr className="modal-divider" />
 
         <div className="modal-body">
           <div className="modal-image">
-            <img src={dish.image} alt={dish.name} />
+            <img
+              src={dish.hinhAnh?.startsWith('http') ? dish.hinhAnh : "https://via.placeholder.com/300x200?text=Mon+An"}
+              alt={dish.tenMon}
+            />
           </div>
 
           <div className="modal-info">
             <p className="modal-price">
-              Giá: <span>{dish.price.toLocaleString("vi-VN")} VNĐ</span>
+              Giá: <span>{dish.gia.toLocaleString("vi-VN")} VNĐ</span>
             </p>
             
             <p className="modal-desc">
-              Mô tả: <i>{dish.description}</i>
+              Mô tả: <i>{dish.moTa || "Không có mô tả"}</i>
             </p>
 
             <div className="modal-quantity-section">
@@ -95,4 +98,4 @@ const OrderModal = ({ dish, onClose, onAddToCart }: OrderModalProps) => {
   );
 };
 
-export default OrderModal;
+export default OrderModal;

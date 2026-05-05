@@ -1,48 +1,77 @@
 import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { getOrders, Order } from "../utils/order";
+import axiosClient from "../utils/api";
 import "../assets/css/style_my_orders.css";
 
 const MyOrders: React.FC = () => {
   const [filter, setFilter] = useState("all");
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [ordersData, setOrdersData] = useState<Order[]>([]);
+  const [ordersData, setOrdersData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Lấy đơn từ localStorage
-    const savedOrders = getOrders();
-    setOrdersData(savedOrders);
-  }, []);
+    fetchMyOrders();
+  }, [filter]);
 
-  const orders = filter === "all" ? ordersData : ordersData.filter(o => o.status === filter);
+  const fetchMyOrders = async () => {
+    setLoading(true);
+    try {
+      // Gọi API lấy danh sách đơn hàng của khách hiện tại
+      // Backend hỗ trợ lọc qua query string ?status=...
+      const statusParam = filter === "all" ? "" : `?status=${filter}`;
+      const res = await axiosClient.get(`/orders/Order/laydanhsachdonhang${statusParam}`);
+      if (res.data.success) {
+        setOrdersData(res.data.data);
+      }
+    } catch (error) {
+      console.error("Lỗi khi tải đơn hàng:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelOrder = async (orderId: number) => {
+    if (window.confirm("Bạn có chắc chắn muốn hủy đơn hàng này?")) {
+      try {
+        const res = await axiosClient.put(`/orders/Order/${orderId}/huydonhangdat`);
+        if (res.data.success) {
+          alert("Hủy đơn hàng thành công!");
+          fetchMyOrders();
+          setIsModalOpen(false);
+        }
+      } catch (error: any) {
+        alert(error.response?.data?.message || "Lỗi khi hủy đơn hàng");
+      }
+    }
+  };
 
   const getStatusText = (status: string) => {
     switch (status) {
-      case "new": return "ĐƠN MỚI";
-      case "confirmed": return "ĐÃ XÁC NHẬN";
-      case "preparing": return "ĐANG CHUẨN BỊ";
-      case "ready": return "SẴN SÀNG GIAO";
-      case "assigned": return "ĐANG GIAO HÀNG";
-      case "completed": return "HOÀN THÀNH";
-      case "cancelled": return "ĐÃ HỦY";
-      default: return "KHÔNG XÁC ĐỊNH";
+      case "ChoXacNhan": return "ĐANG CHỜ";
+      case "DaXacNhan": return "ĐÃ XÁC NHẬN";
+      case "DangChuanBi": return "ĐANG CHUẨN BỊ";
+      case "SanSangGiao": return "SẴN SÀNG";
+      case "DangGiao": return "ĐANG GIAO";
+      case "DaGiao": return "HOÀN THÀNH";
+      case "Huy": return "ĐÃ HỦY";
+      default: return status?.toUpperCase() || "KHÔNG XÁC ĐỊNH";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "new": return "fa-circle-info";
-      case "confirmed": return "fa-check";
-      case "preparing": return "fa-utensils";
-      case "ready": return "fa-check-circle";
-      case "assigned": return "fa-truck";
-      case "completed": return "fa-check-double";
-      case "cancelled": return "fa-times-circle";
+      case "ChoXacNhan": return "fa-clock";
+      case "DangChuanBi": return "fa-utensils";
+      case "SanSangGiao": return "fa-check-circle";
+      case "DangGiao": return "fa-truck";
+      case "DaGiao": return "fa-check-double";
+      case "Huy": return "fa-times-circle";
       default: return "fa-info-circle";
     }
   };
+
 
   const openDetail = (order: any) => {
     setSelectedOrder(order);
@@ -62,13 +91,12 @@ const MyOrders: React.FC = () => {
           <div className="orders-filter-tabs">
             {[
               { id: "all", icon: "fa-list", label: "Tất cả" },
-              { id: "new", icon: "fa-clock", label: "Đơn mới" },
-              { id: "confirmed", icon: "fa-check", label: "Đã xác nhận" },
-              { id: "preparing", icon: "fa-utensils", label: "Đang chuẩn bị" },
-              { id: "ready", icon: "fa-check-circle", label: "Sẵn sàng giao" },
-              { id: "assigned", icon: "fa-truck", label: "Đang giao" },
-              { id: "completed", icon: "fa-check-double", label: "Hoàn thành" },
-              { id: "cancelled", icon: "fa-times-circle", label: "Đã hủy" }
+              { id: "ChoXacNhan", icon: "fa-clock", label: "Đang chờ" },
+              { id: "DangChuanBi", icon: "fa-utensils", label: "Đang nấu" },
+              { id: "SanSangGiao", icon: "fa-check-circle", label: "Sẵn sàng" },
+              { id: "DangGiao", icon: "fa-truck", label: "Đang giao" },
+              { id: "DaGiao", icon: "fa-check-double", label: "Đã giao" },
+              { id: "Huy", icon: "fa-times-circle", label: "Đã hủy" }
             ].map(tab => (
               <button 
                 key={tab.id}
@@ -81,48 +109,39 @@ const MyOrders: React.FC = () => {
           </div>
 
           <div className="orders-list-container">
-            {orders.length === 0 ? (
+            {loading ? (
+              <p style={{ textAlign: "center", padding: "50px" }}>Đang tải đơn hàng...</p>
+            ) : ordersData.length === 0 ? (
               <div className="empty-orders">
                 <i className="fa-solid fa-folder-open"></i>
                 <h3>Chưa có đơn hàng nào</h3>
                 <p>Bạn chưa có đơn hàng nào trong trạng thái này.</p>
               </div>
             ) : (
-              orders.map(order => (
-                <div className="customer-order-card" key={order.id}>
+              ordersData.map(order => (
+                <div className="customer-order-card" key={order.maDonHang}>
                   <div className="order-card-header">
                     <div className="order-id-section">
-                      <h4><i className="fa-solid fa-receipt"></i> Đơn hàng #{order.id}</h4>
-                      <span className="order-date">{order.date}</span>
+                      <h4><i className="fa-solid fa-receipt"></i> Đơn hàng #{order.maDonHang}</h4>
+                      <span className="order-date">{new Date(order.ngayDat).toLocaleString()}</span>
                     </div>
-                    <div className={`order-status-badge status-${order.status}`}>
-                      <i className={`fa-solid ${getStatusIcon(order.status)}`}></i> {getStatusText(order.status)}
+                    <div className={`order-status-badge status-${order.trangThai?.toLowerCase()}`}>
+                      <i className={`fa-solid ${getStatusIcon(order.trangThai)}`}></i> {getStatusText(order.trangThai)}
                     </div>
                   </div>
                   
                   <div className="order-card-body">
                     <div className="order-info-row">
                       <i className="fa-solid fa-store"></i>
-                      <span>Nhà hàng: {order.restaurant}</span>
+                      <span>Nhà hàng: <strong>{order.tenNhaHang}</strong></span>
                     </div>
                     <div className="order-info-row">
                       <i className="fa-solid fa-location-dot"></i>
-                      <span>Địa chỉ giao: {order.address}</span>
+                      <span>Địa chỉ giao: {order.diaChiGiao}</span>
                     </div>
                     <div className="order-info-row">
                       <i className="fa-solid fa-money-bill-wave"></i>
-                      <span className="order-total">Tổng tiền: {order.total.toLocaleString("vi-VN")} VNĐ</span>
-                    </div>
-                    
-                    <div className="order-items-preview">
-                      <strong>Món ăn:</strong>
-                      <div className="items-list">
-                        {order.items.map((item, index) => (
-                          <span className="item-tag" key={index}>
-                            {item.name}
-                          </span>
-                        ))}
-                      </div>
+                      <span className="order-total">Tổng tiền: {order.tongTien?.toLocaleString("vi-VN")} VNĐ</span>
                     </div>
                   </div>
 
@@ -130,9 +149,11 @@ const MyOrders: React.FC = () => {
                     <button className="btn-view-detail" onClick={() => openDetail(order)}>
                       <i className="fa-solid fa-eye"></i> Xem chi tiết
                     </button>
-                    <button className="btn-cancel-order" style={{ marginLeft: "10px" }} onClick={() => alert("Hủy đơn thành công!")}>
-                       <i className="fa-solid fa-xmark"></i> Hủy đơn
-                    </button>
+                    {order.trangThai === "ChoXacNhan" && (
+                      <button className="btn-cancel-order" style={{ marginLeft: "10px" }} onClick={() => handleCancelOrder(order.maDonHang)}>
+                        <i className="fa-solid fa-xmark"></i> Hủy đơn
+                      </button>
+                    )}
                   </div>
                 </div>
               ))
@@ -149,80 +170,56 @@ const MyOrders: React.FC = () => {
             <h2><i className="fa-solid fa-receipt"></i> Chi tiết đơn hàng</h2>
             
             <div className="order-detail-content">
-              {/* Section 1: Thông tin đơn hàng */}
               <div className="detail-section">
                 <h4><i className="fa-solid fa-circle-info"></i> Thông tin đơn hàng</h4>
                 <div className="detail-row">
                   <span className="detail-label">Mã đơn hàng:</span>
-                  <span className="detail-value">{selectedOrder.id}</span>
+                  <span className="detail-value">#{selectedOrder.maDonHang}</span>
                 </div>
                 <div className="detail-row">
                   <span className="detail-label">Trạng thái:</span>
-                  <span className={`order-status-badge status-${selectedOrder.status}`}>
-                    <i className={`fa-solid ${getStatusIcon(selectedOrder.status)}`}></i> {getStatusText(selectedOrder.status)}
+                  <span className={`order-status-badge status-${selectedOrder.trangThai?.toLowerCase()}`}>
+                    <i className={`fa-solid ${getStatusIcon(selectedOrder.trangThai)}`}></i> {getStatusText(selectedOrder.trangThai)}
                   </span>
                 </div>
                 <div className="detail-row">
                   <span className="detail-label">Nhà hàng:</span>
-                  <span className="detail-value">{selectedOrder.restaurant}</span>
+                  <span className="detail-value">{selectedOrder.tenNhaHang}</span>
                 </div>
                 <div className="detail-row">
                   <span className="detail-label">Thời gian đặt:</span>
-                  <span className="detail-value">{selectedOrder.date}</span>
+                  <span className="detail-value">{new Date(selectedOrder.ngayDat).toLocaleString()}</span>
                 </div>
               </div>
 
-              {/* Section 2: Thông tin giao hàng */}
               <div className="detail-section">
                 <h4><i className="fa-solid fa-user"></i> Thông tin giao hàng</h4>
                 <div className="detail-row">
-                  <span className="detail-label">Người nhận:</span>
-                  <span className="detail-value">{selectedOrder.customerName}</span>
+                  <span className="detail-label">Địa chỉ nhận:</span>
+                  <span className="detail-value">{selectedOrder.diaChiGiao}</span>
                 </div>
                 <div className="detail-row">
-                  <span className="detail-label">Số điện thoại:</span>
-                  <span className="detail-value">{selectedOrder.phone}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Địa chỉ:</span>
-                  <span className="detail-value">{selectedOrder.address}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Ghi chú:</span>
-                  <span className="detail-value">{selectedOrder.note || "---"}</span>
+                  <span className="detail-label">Phương thức:</span>
+                  <span className="detail-value">{selectedOrder.phuongThucThanhToan}</span>
                 </div>
               </div>
 
-              {/* Section 3: Danh sách món ăn */}
-              <div className="detail-section">
-                <h4><i className="fa-solid fa-list-ul"></i> Danh sách món ăn</h4>
-                <div className="detail-items-list">
-                  {selectedOrder.items.map((item: any, i: number) => (
-                    <div className="detail-item-line" key={i}>
-                      <span className="detail-item-name">{item.name}</span>
-                      <span className="detail-item-price">{item.price.toLocaleString("vi-VN")} VNĐ</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Section 4: Thanh toán */}
               <div className="detail-section payment-section">
                 <h4><i className="fa-solid fa-credit-card"></i> Thanh toán</h4>
                 <div className="detail-row">
-                  <span className="detail-label">Phương thức:</span>
-                  <span className="detail-value">{selectedOrder.payment}</span>
-                </div>
-                <div className="detail-row">
                   <span className="detail-label">Tổng tiền:</span>
-                  <span className="total-bold">{selectedOrder.total.toLocaleString("vi-VN")} VNĐ</span>
+                  <span className="total-bold">{selectedOrder.tongTien?.toLocaleString("vi-VN")} VNĐ</span>
                 </div>
               </div>
 
-              {/* Modal Footer Actions */}
-              <div className="modal-footer-actions" style={{ marginTop: "10px", display: "flex", justifyContent: "flex-end" }}>
-                <button className="btn-cancel-order" onClick={() => { alert("Hủy đơn thành công!"); setIsModalOpen(false); }}>
-                  <i className="fa-solid fa-xmark"></i> Hủy đơn hàng này
+              <div className="modal-footer-actions" style={{ marginTop: "20px", display: "flex", justifyContent: "flex-end" }}>
+                {selectedOrder.trangThai === "ChoXacNhan" && (
+                  <button className="btn-cancel-order" onClick={() => handleCancelOrder(selectedOrder.maDonHang)}>
+                    <i className="fa-solid fa-xmark"></i> Hủy đơn hàng này
+                  </button>
+                )}
+                <button className="btn-view-detail" style={{ marginLeft: "10px" }} onClick={() => setIsModalOpen(false)}>
+                  Đóng
                 </button>
               </div>
             </div>

@@ -4,7 +4,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import CheckoutModal from "../components/CheckoutModal";
 import { CartItem, getCart, saveCart, getTotal } from "../utils/cart";
-import { addOrder, generateOrderId, formatDateTime } from "../utils/order";
+import axiosClient from "../utils/api";
 import "../assets/css/style_cart.css";
 
 const Cart = () => {
@@ -121,29 +121,35 @@ const Cart = () => {
         isOpen={isCheckoutModalOpen}
         onClose={() => setIsCheckoutModalOpen(false)}
         cart={cart}
-        onSubmitOrder={(orderData) => {
-          const newOrder = {
-            id: generateOrderId(),
-            date: formatDateTime(new Date()),
-            status: "new",
-            total: orderData.totalAmount,
-            restaurant: cart[0]?.restaurantName || "Nhà Hàng DA Food", // Giả định lấy từ món đầu tiên
-            items: orderData.items,
-            customerName: orderData.customerName,
-            phone: orderData.customerPhone,
-            address: orderData.customerAddress,
-            note: orderData.orderNote,
-            payment: orderData.paymentMethod === "cash" ? "Thanh toán khi nhận hàng (COD)" : orderData.paymentMethod
-          };
+        onSubmitOrder={async (orderData) => {
+          try {
+            const requestBody = {
+              maNhaHang: cart[0]?.maNhaHang || 0,
+              diaChiGiao: orderData.customerAddress,
+              ghiChu: orderData.orderNote,
+              phuongThucThanhToan: orderData.paymentMethod === "cash" ? "TienMat" : "ChuyenKhoan",
+              gioHang: cart.map(item => ({
+                maMonAn: parseInt(item.id),
+                soLuong: item.quantity
+              }))
+            };
 
-          addOrder(newOrder);
-          alert("Đặt hàng thành công! Đơn hàng của bạn đã được ghi lại.");
-          
-          setCart([]);
-          localStorage.removeItem("cart");
-          window.dispatchEvent(new Event("cartUpdated"));
-          setIsCheckoutModalOpen(false);
-          navigate("/my-orders"); // Chuyển sang trang đơn hàng để xem
+            const res = await axiosClient.post('/orders/Order/taodonhang', requestBody);
+            
+            if (res.data.success) {
+              alert("Đặt hàng thành công! Đơn hàng của bạn đang được xử lý.");
+              setCart([]);
+              localStorage.removeItem("cart");
+              window.dispatchEvent(new Event("cartUpdated"));
+              setIsCheckoutModalOpen(false);
+              navigate("/my-orders");
+            } else {
+              alert(res.data.message || "Đặt hàng thất bại");
+            }
+          } catch (error: any) {
+            console.error("Lỗi đặt hàng:", error);
+            alert(error.response?.data?.message || "Có lỗi xảy ra khi đặt hàng");
+          }
         }}
       />
     </>
