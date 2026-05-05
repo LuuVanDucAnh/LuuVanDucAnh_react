@@ -1,16 +1,30 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import CheckoutModal from "../components/CheckoutModal";
 import { CartItem, getCart, saveCart, getTotal } from "../utils/cart";
 import "../assets/css/style_cart.css";
 
 const Cart = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+  const navigate = useNavigate();
 
-  // Load dữ liệu
+  // Load dữ liệu và kiểm tra đăng nhập
   useEffect(() => {
+    const currentUser = localStorage.getItem("currentUser");
+    if (!currentUser) {
+      if (window.confirm('Bạn cần đăng nhập để xem giỏ hàng và đặt hàng. Bạn có muốn chuyển đến trang đăng nhập không?')) {
+        navigate('/login');
+      } else {
+        navigate('/');
+      }
+      return;
+    }
+
     setCart(getCart());
-  }, []);
+  }, [navigate]);
 
   // Cập nhật localStorage
   const updateCart = (newCart: CartItem[]) => {
@@ -92,7 +106,7 @@ const Cart = () => {
                     <p>{getTotal(cart).toLocaleString("vi-VN")}đ</p>
                   </div>
                   <div className="total_price_btn">
-                    <button className="btn_order">
+                    <button className="btn_order" onClick={() => setIsCheckoutModalOpen(true)}>
                       Thanh toán
                     </button>
                   </div>
@@ -103,6 +117,20 @@ const Cart = () => {
         </div>
       </div>
       <Footer />
+      <CheckoutModal 
+        isOpen={isCheckoutModalOpen}
+        onClose={() => setIsCheckoutModalOpen(false)}
+        cart={cart}
+        onSubmitOrder={(orderData) => {
+          console.log("Dữ liệu đặt hàng:", orderData);
+          // TODO: Gọi API tạo đơn hàng ở đây
+          alert("Đặt hàng thành công!");
+          setCart([]);
+          localStorage.removeItem("cart");
+          window.dispatchEvent(new Event("cartUpdated"));
+          setIsCheckoutModalOpen(false);
+        }}
+      />
     </>
   );
 };
