@@ -156,11 +156,9 @@ const MyOrders: React.FC = () => {
                     <button className="btn-view-detail" onClick={() => openDetail(order)}>
                       <i className="fa-solid fa-eye"></i> Xem chi tiết
                     </button>
-                    {order.status === "new" && (
-                       <button className="btn-cancel-order" style={{ marginLeft: "10px" }} onClick={() => alert("Hủy đơn thành công!")}>
-                          <i className="fa-solid fa-xmark"></i> Hủy đơn
-                       </button>
-                    )}
+                    <button className="btn-cancel-order" style={{ marginLeft: "10px" }} onClick={() => alert("Hủy đơn thành công!")}>
+                       <i className="fa-solid fa-xmark"></i> Hủy đơn
+                    </button>
                   </div>
                 </div>
               ))
@@ -245,6 +243,13 @@ const MyOrders: React.FC = () => {
                   <span className="detail-label">Tổng tiền:</span>
                   <span className="total-bold">{selectedOrder.total.toLocaleString("vi-VN")} VNĐ</span>
                 </div>
+              </div>
+
+              {/* Modal Footer Actions */}
+              <div className="modal-footer-actions" style={{ marginTop: "10px", display: "flex", justifyContent: "flex-end" }}>
+                <button className="btn-cancel-order" onClick={() => { alert("Hủy đơn thành công!"); setIsModalOpen(false); }}>
+                  <i className="fa-solid fa-xmark"></i> Hủy đơn hàng này
+                </button>
               </div>
             </div>
           </div>
