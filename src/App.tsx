@@ -7,6 +7,7 @@ import Register from "./pages/Register";
 
 import MyOrders from "./pages/MyOrders";
 import RestaurantAdmin from "./pages/RestaurantAdmin";
+import ShipperAdmin from "./pages/ShipperAdmin";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/my-orders" element={<MyOrders />} />
         <Route path="/restaurant-admin" element={<RestaurantAdmin />} />
+        <Route path="/shipper" element={<ShipperAdmin />} />
       </Routes>
     </BrowserRouter>
   );

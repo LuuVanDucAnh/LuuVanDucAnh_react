@@ -1,0 +1,402 @@
+/* ---------------Biến-------------- */
+:root {
+    --orange: #f08550;
+    --text-color: #ffffff;
+    --bg-light: #f8f9fc;
+    --bg-dark: #ea9a72;
+    --success: #28a745;
+    --warning: #ffc107;
+    --danger: #dc3545;
+    --info: #17a2b8;
+}
+
+/*----------------------Main---------------------*/
+.shipper-admin-container {
+    display: flex;
+    min-height: calc(100vh - 90px);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-light);
+}
+
+/*-------------main_left-------------*/
+.shipper-sidebar {
+    width: 250px;
+    background-color: var(--orange);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+}
+
+.shipper-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 0 10px;
+}
+
+.shipper-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: white;
+    padding: 12px 15px;
+    border-radius: 8px;
+    transition: 0.3s;
+    position: relative;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.shipper-menu-item i {
+    font-size: 18px;
+    width: 20px;
+    text-align: center;
+}
+
+.shipper-menu-item:hover, .shipper-menu-item.active {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.shipper-badge {
+    margin-left: auto;
+    background-color: rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/*-------------main_right----------------*/
+.shipper-content {
+    flex: 1;
+    padding: 20px 40px;
+    background-color: var(--bg-light);
+}
+
+.shipper-welcome {
+    background-color: white;
+    padding: 25px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.shipper-welcome h3 {
+    color: var(--orange);
+    margin-bottom: 10px;
+    font-size: 24px;
+}
+
+.shipper-welcome p {
+    color: #666;
+    font-size: 14px;
+}
+
+.shipper-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.shipper-card {
+    background-color: white;
+    border-radius: 10px;
+    padding: 25px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.shipper-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.shipper-card i {
+    font-size: 32px;
+    color: var(--orange);
+    margin-bottom: 10px;
+}
+
+.shipper-card span {
+    display: block;
+    font-size: 28px;
+    font-weight: bold;
+    margin: 10px 0;
+    color: #333;
+}
+
+.shipper-card p {
+    color: #666;
+    font-size: 14px;
+    margin: 0;
+}
+
+/* Section Header */
+.shipper-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.shipper-section-header h3 {
+    color: var(--orange);
+    font-size: 22px;
+    margin: 0;
+}
+
+.shipper-btn-refresh {
+    background-color: var(--orange);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.shipper-btn-refresh:hover {
+    background-color: #e07640;
+}
+
+.shipper-filter-tabs {
+    display: flex;
+    gap: 10px;
+}
+
+.shipper-filter-btn {
+    background-color: #f0f0f0;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.shipper-filter-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.shipper-filter-btn.active {
+    background-color: var(--orange);
+    color: white;
+}
+
+/* Orders List */
+.shipper-orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.shipper-order-card {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+}
+
+.shipper-order-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.shipper-order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.shipper-order-id {
+    font-weight: bold;
+    color: var(--orange);
+    font-size: 16px;
+}
+
+.shipper-order-status {
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.shipper-order-status.pending { background-color: var(--warning); color: #333; }
+.shipper-order-status.picking { background-color: var(--info); color: white; }
+.shipper-order-status.delivering { background-color: #007bff; color: white; }
+.shipper-order-status.completed { background-color: var(--success); color: white; }
+
+.shipper-order-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.shipper-info-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.shipper-info-item i {
+    color: var(--orange);
+    font-size: 18px;
+}
+
+.shipper-info-item span {
+    font-size: 14px;
+    color: #666;
+}
+
+.shipper-order-total {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--orange);
+    margin: 10px 0;
+}
+
+.shipper-order-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.shipper-btn-action {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.shipper-btn-accept { background-color: var(--success); color: white; }
+.shipper-btn-picking { background-color: var(--info); color: white; }
+.shipper-btn-delivering { background-color: #007bff; color: white; }
+.shipper-btn-complete { background-color: var(--success); color: white; }
+.shipper-btn-detail { background-color: #f0f0f0; color: #333; }
+
+/* Statistics */
+.shipper-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.shipper-stat-card {
+    background-color: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    text-align: center;
+}
+
+.shipper-stat-card h4 {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+}
+
+.shipper-stat-card p {
+    font-size: 32px;
+    font-weight: bold;
+    color: var(--orange);
+    margin: 0;
+}
+
+/* Modal */
+.shipper-modal {
+    position: fixed;
+    z-index: 99999999999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.shipper-modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    position: relative;
+}
+
+.shipper-close-modal {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.shipper-close-modal:hover {
+    color: var(--orange);
+}
+
+.shipper-empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+}
+
+.shipper-empty-state i {
+    font-size: 64px;
+    margin-bottom: 20px;
+    color: #ddd;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .shipper-admin-container {
+        flex-direction: column;
+    }
+
+    .shipper-sidebar {
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+    }
+
+    .shipper-menu {
+        flex-direction: row;
+        padding: 10px;
+    }
+
+    .shipper-menu-item span {
+        display: none;
+    }
+
+    .shipper-content {
+        padding: 15px;
+    }
+}

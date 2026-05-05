@@ -103,7 +103,7 @@ const Header = () => {
                         </>
                       )}
                       {(userRole === "nhân viên" || userRole === "nhanvien" || userRole === "nhà hàng") && (
-                        <li className="yes_acc"><Link to="/nhahang"><i className="fa-solid fa-gear"></i> Quản lý nhà hàng</Link></li>
+                        <li className="yes_acc"><Link to="/restaurant-admin"><i className="fa-solid fa-gear"></i> Quản lý nhà hàng</Link></li>
                       )}
                       {userRole === "shipper" && (
                         <li className="yes_acc"><Link to="/shipper"><i className="fa-solid fa-gear"></i> Shipper</Link></li>
