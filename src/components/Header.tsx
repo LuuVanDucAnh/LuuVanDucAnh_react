@@ -1,18 +1,33 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import logo from "../images/Logo_icon.png";
+import { getCart } from "../utils/cart";
 import "../assets/css/Header.css";
 
 const Header = () => {
   const location = useLocation();
   const isAuthPage = location.pathname === "/login" || location.pathname === "/register";
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [cartCount, setCartCount] = useState(0);
 
   useEffect(() => {
     const user = localStorage.getItem("currentUser");
     if (user) {
       setCurrentUser(JSON.parse(user));
     }
+
+    const updateCartCount = () => {
+      const cart = getCart();
+      const count = cart.reduce((acc, item) => acc + item.quantity, 0);
+      setCartCount(count);
+    };
+
+    updateCartCount(); // Khởi tạo số lượng giỏ hàng ban đầu
+    window.addEventListener("cartUpdated", updateCartCount);
+
+    return () => {
+      window.removeEventListener("cartUpdated", updateCartCount);
+    };
   }, []);
 
   const handleLogout = (e: React.MouseEvent) => {
@@ -104,7 +119,9 @@ const Header = () => {
               <li className="cart">
                 <Link to="/cart">
                   <i className="fa-solid fa-cart-shopping">
-                    <div id="number_items" className="number_items">0</div>
+                    <div id="number_items" className="number_items">
+                      {cartCount}
+                    </div>
                   </i>
                   <span>Giỏ hàng</span>
                 </Link>

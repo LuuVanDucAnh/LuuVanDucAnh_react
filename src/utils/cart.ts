@@ -14,6 +14,7 @@ export const getCart = (): CartItem[] => {
 // Lưu giỏ hàng
 export const saveCart = (cart: CartItem[]) => {
   localStorage.setItem("cart", JSON.stringify(cart));
+  window.dispatchEvent(new Event("cartUpdated"));
 };
 
 // Tổng tiền

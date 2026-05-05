@@ -192,3 +192,46 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Toast Notification */
+.toast-notification {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    font-size: 16px;
+    font-weight: 500;
+    z-index: 10000;
+    animation: slideInUp 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.toast-notification i {
+    font-size: 20px;
+}
+
+@keyframes slideInUp {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}

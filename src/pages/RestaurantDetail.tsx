@@ -50,6 +50,7 @@ const RestaurantDetail = () => {
   const navigate = useNavigate();
   const restaurant = location.state?.restaurant;
   const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Thêm món vào giỏ
   const addToCart = (dish: Dish, quantity: number = 1) => {
@@ -67,7 +68,12 @@ const RestaurantDetail = () => {
       });
     }
     saveCart(currentCart);
-    alert(`Đã thêm ${quantity} ${dish.name} vào giỏ hàng`);
+    
+    // Show toast instead of alert
+    setToastMessage(`Đã thêm ${quantity} x ${dish.name} vào giỏ hàng`);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 3000);
   };
 
   return (
@@ -133,6 +139,14 @@ const RestaurantDetail = () => {
         onClose={() => setSelectedDish(null)} 
         onAddToCart={addToCart} 
       />
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="toast-notification">
+          <i className="fa-solid fa-circle-check"></i>
+          {toastMessage}
+        </div>
+      )}
     </>
   );
 };
