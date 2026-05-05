@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import '../assets/css/sign_in.css';
@@ -9,10 +9,58 @@ const Login: React.FC = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
+    const navigate = useNavigate();
+
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Đăng nhập với:', { username, password });
-        // Xử lý logic đăng nhập tại đây
+
+        if (username === '' || password === '') {
+            alert("Vui lòng điền đầy đủ tên tài khoản và mật khẩu!");
+            return;
+        }
+
+        if (username.length < 3) {
+            alert("Tên tài khoản phải có ít nhất 3 ký tự!");
+            return;
+        }
+
+        if (password.length < 6) {
+            alert("Mật khẩu phải có ít nhất 6 ký tự!");
+            return;
+        }
+
+        const usersData = localStorage.getItem("users");
+        if (!usersData) {
+            alert("Không có dữ liệu người dùng! Vui lòng đăng ký tài khoản mới.");
+            return;
+        }
+
+        try {
+            const users = JSON.parse(usersData);
+            const foundUser = users.find((user: any) => user.username === username && user.password === password);
+
+            if (foundUser) {
+                localStorage.setItem("currentUser", JSON.stringify(foundUser));
+                localStorage.setItem("loginTime", new Date().toISOString());
+
+                let redirectUrl = "/";
+                if (foundUser.role === "admin" || foundUser.role === "Admin") {
+                    redirectUrl = "/admin";
+                } else if (foundUser.role === "nhanvien" || foundUser.role === "Nhân Viên") {
+                    redirectUrl = "/nhahang";
+                } else if (foundUser.role === "shipper" || foundUser.role === "Shipper") {
+                    redirectUrl = "/shipper";
+                }
+
+                alert("Đăng nhập thành công!");
+                window.location.href = redirectUrl;
+            } else {
+                alert("Sai tài khoản hoặc mật khẩu!");
+            }
+        } catch (error) {
+            console.error("Lỗi khi đọc dữ liệu:", error);
+            alert("Có lỗi xảy ra! Vui lòng thử lại.");
+        }
     };
 
     return (

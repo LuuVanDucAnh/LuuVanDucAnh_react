@@ -1,8 +1,33 @@
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import logo from "../images/Logo_icon.png";
 import "../assets/css/Header.css";
 
 const Header = () => {
+  const location = useLocation();
+  const isAuthPage = location.pathname === "/login" || location.pathname === "/register";
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    const user = localStorage.getItem("currentUser");
+    if (user) {
+      setCurrentUser(JSON.parse(user));
+    }
+  }, []);
+
+  const handleLogout = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (window.confirm("Bạn có chắc chắn muốn đăng xuất?")) {
+      localStorage.removeItem("currentUser");
+      localStorage.removeItem("loginTime");
+      setCurrentUser(null);
+      alert("Đăng xuất thành công!");
+      window.location.href = "/";
+    }
+  };
+
+  const userRole = currentUser?.role?.toLowerCase() || '';
+
   return (
     <div className="header">
       <div className="header_top">
@@ -41,17 +66,37 @@ const Header = () => {
               <li className="account">
                 <i className="fa-solid fa-user"></i>
                 <div className="text">
-                  <span id="text_dndk" className="text_dndk">Đăng nhập / Đăng ký</span>
-                  <span id="text_tk" className="text_tk">Tài khoản<i className="fa-solid fa-caret-down"></i></span>
+                  {!currentUser ? (
+                    <span className="text_dndk">Đăng nhập / Đăng ký</span>
+                  ) : (
+                    <span className="text_tk">{currentUser.fullname || currentUser.username}<i className="fa-solid fa-caret-down"></i></span>
+                  )}
                 </div>
                 <ul className="account_manager">
-                  <li className="no_acc"><Link to="/login"><i className="fa-solid fa-right-to-bracket"></i> Đăng nhập</Link></li>
-                  <li className="no_acc"><Link to="/register"><i className="fa-solid fa-user-plus"></i> Đăng ký</Link></li>
-                  <li id="admin" className="yes_acc"><Link to="/admin"><i className="fa-solid fa-gear"></i> Quản lý cửa hàng</Link></li>
-                  <li id="nhanvien" className="yes_acc"><Link to="/nhahang"><i className="fa-solid fa-gear"></i> Quản lý nhà hàng</Link></li>
-                  <li id="shipper" className="yes_acc"><Link to="/shipper"><i className="fa-solid fa-gear"></i> Shipper</Link></li>
-                  <li className="yes_acc"><Link to="/my-orders"><i className="fa-solid fa-clipboard-list"></i> Đơn hàng của tôi</Link></li>
-                  <li className="yes_acc"><Link id="dang_xuat" to="/"><i className="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất</Link></li>
+                  {!currentUser ? (
+                    <>
+                      <li className="no_acc"><Link to="/login"><i className="fa-solid fa-right-to-bracket"></i> Đăng nhập</Link></li>
+                      <li className="no_acc"><Link to="/register"><i className="fa-solid fa-user-plus"></i> Đăng ký</Link></li>
+                    </>
+                  ) : (
+                    <>
+                      {userRole === "admin" && (
+                        <>
+                          <li className="yes_acc"><Link to="/admin"><i className="fa-solid fa-gear"></i> Quản lý cửa hàng</Link></li>
+                          <li className="yes_acc"><Link to="/nhahang"><i className="fa-solid fa-gear"></i> Quản lý nhà hàng</Link></li>
+                          <li className="yes_acc"><Link to="/shipper"><i className="fa-solid fa-gear"></i> Shipper</Link></li>
+                        </>
+                      )}
+                      {(userRole === "nhân viên" || userRole === "nhanvien" || userRole === "nhà hàng") && (
+                        <li className="yes_acc"><Link to="/nhahang"><i className="fa-solid fa-gear"></i> Quản lý nhà hàng</Link></li>
+                      )}
+                      {userRole === "shipper" && (
+                        <li className="yes_acc"><Link to="/shipper"><i className="fa-solid fa-gear"></i> Shipper</Link></li>
+                      )}
+                      <li className="yes_acc"><Link to="/my-orders"><i className="fa-solid fa-clipboard-list"></i> Đơn hàng của tôi</Link></li>
+                      <li className="yes_acc"><a href="#" onClick={handleLogout}><i className="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất</a></li>
+                    </>
+                  )}
                 </ul>
               </li>
 
@@ -72,20 +117,22 @@ const Header = () => {
       </div>
 
       {/* NAV */}
-      <div className="header_nav">
-        <div className="container">
-          <ul className="nav">
-            <li><Link to="/">Trang chủ</Link></li>
-            <li><a href="#mon_chay">Món Chay</a></li>
-            <li><a href="#mon_man">Món Mặn</a></li>
-            <li><a href="#mon_lau">Món Lẩu</a></li>
-            <li><a href="#an_vat">Ăn Vặt</a></li>
-            <li><a href="#hoa_qua">Hoa Quả</a></li>
-            <li><a href="#nuoc_uong">Nước Uống</a></li>
-            <li><a href="">Khác</a></li>
-          </ul>
+      {!isAuthPage && (
+        <div className="header_nav">
+          <div className="container">
+            <ul className="nav">
+              <li><Link to="/">Trang chủ</Link></li>
+              <li><a href="#mon_chay">Món Chay</a></li>
+              <li><a href="#mon_man">Món Mặn</a></li>
+              <li><a href="#mon_lau">Món Lẩu</a></li>
+              <li><a href="#an_vat">Ăn Vặt</a></li>
+              <li><a href="#hoa_qua">Hoa Quả</a></li>
+              <li><a href="#nuoc_uong">Nước Uống</a></li>
+              <li><a href="">Khác</a></li>
+            </ul>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
