@@ -7,6 +7,7 @@ import "../assets/css/Header.css";
 const Header = () => {
   const location = useLocation();
   const isAuthPage = location.pathname === "/login" || location.pathname === "/register";
+  const isAdminPage = location.pathname === "/shipper" || location.pathname === "/admin" || location.pathname === "/restaurant-admin";
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [cartCount, setCartCount] = useState(0);
 
@@ -134,7 +135,7 @@ const Header = () => {
       </div>
 
       {/* NAV */}
-      {!isAuthPage && (
+      {!isAuthPage && !isAdminPage && (
         <div className="header_nav">
           <div className="container">
             <ul className="nav">

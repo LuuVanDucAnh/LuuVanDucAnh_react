@@ -30,22 +30,35 @@ const Login: React.FC = () => {
             return;
         }
 
+        // --- CHẾ ĐỘ MOCK LOGIN (ĐỂ TEST GIAO DIỆN) ---
+        const mockUsers: any = {
+            'admin': { token: 'mock-token-admin', user: { username: 'admin', fullname: 'System Admin', role: 'admin' } },
+            'shipper': { token: 'mock-token-shipper', user: { username: 'shipper', fullname: 'Shipper Test', role: 'shipper' } },
+            'nhahang': { token: 'mock-token-nhahang', user: { username: 'nhahang', fullname: 'Restaurant Staff', role: 'nhanvien' } }
+        };
+
+        if (mockUsers[username] && password === username + '123') {
+            const data = mockUsers[username];
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("currentUser", JSON.stringify(data.user));
+            localStorage.setItem("loginTime", new Date().toISOString());
+            
+            alert("Đăng nhập Mock thành công (Chế độ test)!");
+            window.location.href = username === 'admin' ? '/admin' : (username === 'shipper' ? '/shipper' : '/restaurant-admin');
+            return;
+        }
+        // ------------------------------------------
+
         try {
             const response = await axiosClient.post('/Auth/login', {
                 Username: username,
                 MatKhau: password
             });
 
-            // API của bạn trả về thông qua ApiResponse.Ok(responseData, message)
-            // Cấu trúc trả về thường sẽ nằm trong response.data.data (nếu ApiResponse có thuộc tính data)
-            // hoặc tuỳ thuộc vào cách định nghĩa class ApiResponse của bạn.
-            // Dưới đây giả định ApiResponse bọc dữ liệu trong thuộc tính 'data'
-            
             const apiResponse = response.data;
-            const responseData = apiResponse.data || apiResponse; // Đề phòng trường hợp API trả trực tiếp
+            const responseData = apiResponse.data || apiResponse; 
 
             if (responseData && responseData.token) {
-                // Lưu thông tin người dùng và token
                 localStorage.setItem("token", responseData.token);
                 localStorage.setItem("currentUser", JSON.stringify(responseData.user));
                 localStorage.setItem("loginTime", new Date().toISOString());
@@ -55,7 +68,7 @@ const Login: React.FC = () => {
                 
                 if (role === "admin") {
                     redirectUrl = "/admin";
-                } else if (role === "nhanvien" || role === "nhà hàng") {
+                } else if (role === "nhanvien" || role === "nhà hàng" || role === "nhahang") {
                     redirectUrl = "/restaurant-admin";
                 } else if (role === "shipper") {
                     redirectUrl = "/shipper";
@@ -71,7 +84,7 @@ const Login: React.FC = () => {
             if (error.response && error.response.status === 400) {
                 alert(error.response.data?.message || "Sai tài khoản hoặc mật khẩu!");
             } else {
-                alert("Có lỗi xảy ra kết nối với Server! Vui lòng thử lại.");
+                alert("Có lỗi xảy ra kết nối với Server! Vui lòng thử lại. (Sử dụng admin/admin123 để test)");
             }
         }
     };

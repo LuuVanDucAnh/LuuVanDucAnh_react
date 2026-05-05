@@ -8,6 +8,7 @@ import Register from "./pages/Register";
 import MyOrders from "./pages/MyOrders";
 import RestaurantAdmin from "./pages/RestaurantAdmin";
 import ShipperAdmin from "./pages/ShipperAdmin";
+import Admin from "./pages/Admin";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/my-orders" element={<MyOrders />} />
         <Route path="/restaurant-admin" element={<RestaurantAdmin />} />
         <Route path="/shipper" element={<ShipperAdmin />} />
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </BrowserRouter>
   );
