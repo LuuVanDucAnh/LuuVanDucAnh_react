@@ -1,0 +1,337 @@
+/* -------------------Đăng nhập, Đăng ký---------------- */
+.container_sign {
+    max-width: 1130px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 80px 0px;
+}
+
+.logo_sign {
+    width: 45%;
+    height: 150px;
+    margin-bottom: 20px;
+}
+
+.logo_sign img {
+    width: 100%;
+    height: 100%;
+    
+}
+
+.sign {
+    width: 35%;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 5px 10px #cccccc;
+    text-align: center;
+    display: block;
+
+}
+
+.sign h2 {
+    text-align: center;
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    color: var(--orange);
+}
+
+.sign input {
+    width: 80%;
+    height: 40px;
+    padding: 5px 15px;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    outline: none;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.sign input:focus {
+    border: 1px solid var(--orange);
+}
+
+.sign button {
+    padding: 5px 15px;
+    height: 40px;
+    font-size: 14px;
+    border: none;
+    background-color: var(--orange);
+    color: var(--text-color);
+    border-radius: 20px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+    margin-bottom: 10px;
+}
+
+.sign button:hover {
+    border: 1px solid #ccc;
+    color: black;
+    transform: scale(1.05);
+}
+
+.sign span {
+    font-size: 14px;
+    font-weight: 400;
+    color: #707070;
+}
+
+.sign span a {
+    color: var(--orange);
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+/* ========== CHỌN LOẠI TÀI KHOẢN ========== */
+.account-type-selection {
+    margin: 20px 0;
+}
+
+.account-type-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.account-type-options {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.account-type-option {
+    position: relative;
+    cursor: pointer;
+    flex: 1;
+    min-width: 120px;
+    max-width: 150px;
+}
+
+.account-type-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.option-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    background: white;
+    transition: all 0.3s ease;
+    text-align: center;
+    gap: 10px;
+}
+
+.option-card i {
+    font-size: 32px;
+    color: #999;
+    transition: all 0.3s ease;
+}
+
+.option-card span {
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+    transition: all 0.3s ease;
+}
+
+.account-type-option input[type="radio"]:checked + .option-card {
+    border-color: var(--orange);
+    background: #fff8f0;
+    box-shadow: 0 4px 12px rgba(240, 133, 80, 0.2);
+}
+
+.account-type-option input[type="radio"]:checked + .option-card i {
+    color: var(--orange);
+    transform: scale(1.1);
+}
+
+.account-type-option input[type="radio"]:checked + .option-card span {
+    color: var(--orange);
+    font-weight: 700;
+}
+
+.account-type-option:hover .option-card {
+    border-color: var(--orange);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* ========== FORGOT PASSWORD ========== */
+.login-help {
+    text-align: right;
+    margin-top: -10px;
+    margin-bottom: 10px;
+}
+
+.forgot-password {
+    font-size: 12px;
+    color: var(--orange);
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.forgot-password:hover {
+    text-decoration: underline;
+}
+
+/* Responsive cho account type selection */
+@media (max-width: 768px) {
+    .account-type-options {
+        flex-direction: column;
+    }
+    
+    .account-type-option {
+        max-width: 100%;
+    }
+    
+    .option-card {
+        flex-direction: row;
+        padding: 15px 20px;
+        justify-content: flex-start;
+        gap: 15px;
+    }
+    
+    .option-card i {
+        font-size: 24px;
+    }
+}
+
+/* ----------------Product-Detail------------ */
+.product_detail {
+    position: fixed;
+    top: 0;
+    right: 0;
+    z-index: 9999999999;
+    width: 100vw;
+    height: 100vh;
+    display: none;
+}
+
+.product_detail_open {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(3px);
+}
+
+.product_detail_main {
+    width: 40%;
+    background-color: #fff8f0;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    animation: zoomIn 0.4s ease;
+}
+
+@keyframes zoomIn {
+    from {
+        transform: scale(0.7);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.product_detail_content {
+    position: relative;
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    height: 100%;
+    box-sizing: border-box;
+    overflow-y: auto;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.product_detail_content img {
+    border-radius: 10px;
+    width: 300px;
+    height: 300px;
+    object-fit: cover;
+    box-shadow: 0 4px 15px rgba(255, 165, 0, 0.3);
+}
+
+.product_detail_info {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 15px;
+    color: #333;
+    max-width: 60%;
+}
+
+.product_detail_info h2 {
+    margin: 0;
+    font-size: 26px;
+    color: #ff7a00;
+}
+
+.product_detail_info p {
+    margin: 0;
+    font-size: 16px;
+}
+
+.product_detail_info input[type="number"] {
+    padding: 6px 10px;
+    width: 40px;
+    font-size: 16px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    transition: border-color 0.2s;
+}
+
+.product_detail_info input[type="number"]:focus {
+    border-color: #ffa500;
+    outline: none;
+}
+
+.product_detail_info button {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    background-color: #ffa500;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 15px;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.product_detail_info button:hover {
+    background-color: var(--orange);
+    transform: translateY(-2px);
+}
+
+.close_detail_btn {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #999;
+    transition: transform 0.2s, color 0.2s;
+}
+
+.close_detail_btn:hover {
+    transform: scale(1.2);
+    color: #333;
+}
