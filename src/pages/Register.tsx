@@ -13,7 +13,6 @@ const Register: React.FC = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [phone, setPhone] = useState('');
     const [licensePlate, setLicensePlate] = useState('');
-    const [maCode, setMaCode] = useState('');
     const [accountType, setAccountType] = useState('khachhang');
 
     const navigate = useNavigate();
@@ -40,7 +39,7 @@ const Register: React.FC = () => {
             SoDienThoai: phone,
             DiaChi: null, // Bỏ nhập địa chỉ theo yêu cầu
             BienSoXe: accountType === 'shipper' ? licensePlate : null,
-            MaCode: accountType === 'nhanvien' ? maCode : null
+            MaCode: null // Xóa mã code nhà hàng theo yêu cầu
         };
 
         try {
@@ -71,11 +70,11 @@ const Register: React.FC = () => {
                     <div className="sign" style={{ width: '400px' }}>
                         <h2>Đăng ký tài khoản</h2>
                         <form className="infor_account" onSubmit={handleRegister}>
-                            <input type="text" placeholder="Họ và tên" required value={fullName} onChange={(e) => setFullName(e.target.value)} />
-                            <input type="text" placeholder="Tên đăng nhập" required value={username} onChange={(e) => setUsername(e.target.value)} />
-                            <input type="tel" placeholder="Số điện thoại (10 số, bắt đầu bằng 0)" required value={phone} onChange={(e) => setPhone(e.target.value)} />
-                            <input type="password" placeholder="Mật khẩu" required value={password} onChange={(e) => setPassword(e.target.value)} />
-                            <input type="password" placeholder="Nhập lại mật khẩu" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+                            <input type="text" placeholder="Họ và tên" required value={fullName} onChange={(e) => setFullName(e.target.value)} autoComplete="off" />
+                            <input type="text" placeholder="Tên đăng nhập" required value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="off" />
+                            <input type="tel" placeholder="Số điện thoại (10 số, bắt đầu bằng 0)" required value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="off" />
+                            <input type="password" placeholder="Mật khẩu" required value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="new-password" />
+                            <input type="password" placeholder="Nhập lại mật khẩu" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} autoComplete="new-password" />
                             
                             <div className="account-type-selection">
                                 <label className="account-type-label">Chọn vai trò:</label>
@@ -108,10 +107,6 @@ const Register: React.FC = () => {
                             {accountType === 'shipper' && (
                                 <input type="text" placeholder="Biển số xe" required value={licensePlate} onChange={(e) => setLicensePlate(e.target.value)} />
                             )}
-                            {accountType === 'nhanvien' && (
-                                <input type="text" placeholder="Mã code nhà hàng (Để được cấp quyền)" required value={maCode} onChange={(e) => setMaCode(e.target.value)} />
-                            )}
-
                             <button type="submit" style={{ marginTop: '10px' }}>Đăng ký ngay</button>
                             <div style={{ marginTop: '15px' }}>
                                 <span>Đã có tài khoản? <Link to="/login">Đăng nhập</Link></span>
