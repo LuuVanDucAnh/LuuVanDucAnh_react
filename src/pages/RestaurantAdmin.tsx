@@ -1,94 +1,108 @@
 import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import { getOrders, saveOrders, Order } from "../utils/order";
+import axiosClient from "../utils/api";
 import "../assets/css/style_restaurant_admin.css";
 
 // Interface cho sản phẩm của nhà hàng
 interface RestaurantProduct {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  description: string;
-  category: string;
+  maMonAn: number;
+  tenMon: string;
+  gia: number;
+  hinhAnh: string;
+  moTa: string;
+  maDanhMuc: number;
 }
 
 const RestaurantAdmin: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"products" | "orders">("products");
   const [products, setProducts] = useState<RestaurantProduct[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
+  const [orders, setOrders] = useState<any[]>([]);
   const [orderFilter, setOrderFilter] = useState("all");
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   // State cho form thêm sản phẩm
   const [newProduct, setNewProduct] = useState({
-    name: "",
-    price: "",
-    image: "",
-    description: "",
-    category: "mon_chay"
+    tenMon: "",
+    gia: "",
+    hinhAnh: "",
+    moTa: "",
+    maDanhMuc: 1
   });
 
   useEffect(() => {
-    // Load sản phẩm
-    const savedProducts = localStorage.getItem("restaurant_products");
-    if (savedProducts) {
-      setProducts(JSON.parse(savedProducts));
-    } else {
-      // Dữ liệu mẫu ban đầu
-      const initialProducts = [
-        { id: "p1", name: "Nấm sốt đông", price: 20000, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6f9Y9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f9f", description: "Nấm đông có sốt với nước tương và gia vị", category: "mon_chay" }
-      ];
-      setProducts(initialProducts);
-      localStorage.setItem("restaurant_products", JSON.stringify(initialProducts));
+    const userStr = localStorage.getItem("currentUser");
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      setCurrentUser(user);
+      if (user.maNhaHang) {
+        fetchRestaurantData(user.maNhaHang);
+      }
     }
-
-    // Load đơn hàng
-    setOrders(getOrders());
   }, []);
 
-  const saveProductsToLocal = (updatedProducts: RestaurantProduct[]) => {
-    setProducts(updatedProducts);
-    localStorage.setItem("restaurant_products", JSON.stringify(updatedProducts));
+  const fetchRestaurantData = async (maNhaHang: number) => {
+    try {
+      // 1. Load món ăn của quán
+      const productRes = await axiosClient.get(`/foods/Food/nhahang/${maNhaHang}/monan`);
+      setProducts(productRes.data);
+
+      // 2. Load đơn hàng của quán
+      const orderRes = await axiosClient.get('/orders/ManageOrder/merchant/list');
+      if (orderRes.data.success) setOrders(orderRes.data.data);
+
+    } catch (error) {
+      console.error("Lỗi khi tải dữ liệu nhà hàng:", error);
+    }
   };
 
-  const handleAddProduct = () => {
-    if (!newProduct.name || !newProduct.price) {
-      alert("Vui lòng nhập tên và giá sản phẩm!");
+  const handleAddProduct = async () => {
+    if (!newProduct.tenMon || !newProduct.gia || !currentUser?.maNhaHang) {
+      alert("Vui lòng nhập đầy đủ thông tin!");
       return;
     }
 
-    const productToAdd: RestaurantProduct = {
-      id: "P" + Date.now(),
-      name: newProduct.name,
-      price: Number(newProduct.price),
-      image: newProduct.image || "https://via.placeholder.com/150",
-      description: newProduct.description,
-      category: newProduct.category
-    };
+    try {
+      const productToAdd = {
+        ...newProduct,
+        gia: Number(newProduct.gia),
+        maNhaHang: currentUser.maNhaHang
+      };
 
-    saveProductsToLocal([productToAdd, ...products]);
-    setNewProduct({ name: "", price: "", image: "", description: "", category: "mon_chay" });
-    alert("Thêm sản phẩm thành công!");
-  };
-
-  const handleDeleteProduct = (id: string) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
-      const updated = products.filter(p => p.id !== id);
-      saveProductsToLocal(updated);
+      const res = await axiosClient.post('/foods/Food/Create-MonAn', productToAdd);
+      alert("Thêm sản phẩm thành công!");
+      fetchRestaurantData(currentUser.maNhaHang);
+      setNewProduct({ tenMon: "", gia: "", hinhAnh: "", moTa: "", maDanhMuc: 1 });
+    } catch (error) {
+      alert("Lỗi khi thêm sản phẩm");
     }
   };
 
-  const updateOrderStatus = (orderId: string, newStatus: string) => {
-    const updatedOrders = orders.map(o => 
-      o.id === orderId ? { ...o, status: newStatus } : o
-    );
-    setOrders(updatedOrders);
-    saveOrders(updatedOrders);
-    alert(`Đã cập nhật trạng thái đơn hàng sang: ${newStatus.toUpperCase()}`);
+  const handleDeleteProduct = async (id: number) => {
+    if (window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
+      try {
+        await axiosClient.delete(`/foods/Food/Delete-MonAn/${id}`);
+        alert("Đã xóa sản phẩm");
+        fetchRestaurantData(currentUser.maNhaHang);
+      } catch (error) {
+        alert("Lỗi khi xóa sản phẩm");
+      }
+    }
   };
 
-  const filteredOrders = orderFilter === "all" ? orders : orders.filter(o => o.status === orderFilter);
+  const updateOrderStatus = async (orderId: number, endpoint: string) => {
+    try {
+      const res = await axiosClient.put(`/orders/ManageOrder/${orderId}/${endpoint}`);
+      if (res.data.success) {
+        alert("Cập nhật trạng thái thành công!");
+        fetchRestaurantData(currentUser.maNhaHang);
+      }
+    } catch (error) {
+      alert("Lỗi khi cập nhật trạng thái");
+    }
+  };
+
+  const filteredOrders = orderFilter === "all" ? orders : orders.filter(o => o.trangThai === orderFilter);
 
   return (
     <>
@@ -125,38 +139,37 @@ const RestaurantAdmin: React.FC = () => {
                   <h3>Thêm sản phẩm mới</h3>
                   <div className="add-product-form">
                     <select 
-                      value={newProduct.category} 
-                      onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
+                      value={newProduct.maDanhMuc} 
+                      onChange={(e) => setNewProduct({...newProduct, maDanhMuc: Number(e.target.value)})}
                     >
-                      <option value="mon_chay">Món chay</option>
-                      <option value="mon_man">Món mặn</option>
-                      <option value="mon_lau">Món lẩu</option>
-                      <option value="an_vat">Ăn vặt</option>
-                      <option value="nuoc_uong">Nước uống</option>
+                      <option value="1">Món chính</option>
+                      <option value="2">Món nước</option>
+                      <option value="3">Đồ uống</option>
+                      <option value="4">Ăn vặt</option>
                     </select>
                     <input 
                       type="text" 
                       placeholder="Tên món" 
-                      value={newProduct.name}
-                      onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
+                      value={newProduct.tenMon}
+                      onChange={(e) => setNewProduct({...newProduct, tenMon: e.target.value})}
                     />
                     <input 
                       type="number" 
                       placeholder="Giá (VNĐ)" 
-                      value={newProduct.price}
-                      onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
+                      value={newProduct.gia}
+                      onChange={(e) => setNewProduct({...newProduct, gia: e.target.value})}
                     />
                     <input 
                       type="text" 
                       placeholder="Link ảnh" 
-                      value={newProduct.image}
-                      onChange={(e) => setNewProduct({...newProduct, image: e.target.value})}
+                      value={newProduct.hinhAnh}
+                      onChange={(e) => setNewProduct({...newProduct, hinhAnh: e.target.value})}
                     />
                     <input 
                       type="text" 
                       placeholder="Mô tả ngắn" 
-                      value={newProduct.description}
-                      onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
+                      value={newProduct.moTa}
+                      onChange={(e) => setNewProduct({...newProduct, moTa: e.target.value})}
                     />
                     <button onClick={handleAddProduct}>
                       <i className="fa-solid fa-plus"></i> Thêm sản phẩm
@@ -170,20 +183,19 @@ const RestaurantAdmin: React.FC = () => {
                     <p style={{ textAlign: "center", color: "#999", padding: "20px" }}>Chưa có sản phẩm nào.</p>
                   ) : (
                     products.map(product => (
-                      <div className="product_item" key={product.id}>
+                      <div className="product_item" key={product.maMonAn}>
                         <div className="img-box">
-                          <img src={product.image} alt={product.name} />
+                          <img src={product.hinhAnh?.startsWith('http') ? product.hinhAnh : require(`../images/anh-chung.jpg`)} alt={product.tenMon} />
                         </div>
                         <div className="name-box">
-                          <strong>{product.name}</strong>
-                          <div style={{ fontSize: "12px", color: "#999", fontWeight: "normal" }}>{product.category}</div>
+                          <strong>{product.tenMon}</strong>
                         </div>
-                        <div className="price-box"> {product.price.toLocaleString("vi-VN")} VNĐ </div>
+                        <div className="price-box"> {product.gia?.toLocaleString("vi-VN")} VNĐ </div>
                         <div className="desc-box">
-                          <em>{product.description}</em>
+                          <em>{product.moTa}</em>
                         </div>
                         <div className="btn-box">
-                          <button onClick={() => handleDeleteProduct(product.id)}>Xóa</button>
+                          <button onClick={() => handleDeleteProduct(product.maMonAn)}>Xóa</button>
                         </div>
                       </div>
                     ))
@@ -201,19 +213,18 @@ const RestaurantAdmin: React.FC = () => {
                 <div className="order-filters">
                   {[
                     { id: "all", label: "Tất cả" },
-                    { id: "new", label: "Đơn mới" },
-                    { id: "confirmed", label: "Đã xác nhận" },
-                    { id: "preparing", label: "Đang chuẩn bị" },
-                    { id: "ready", label: "Sẵn sàng giao" },
-                    { id: "assigned", label: "Đang giao" },
-                    { id: "completed", label: "Hoàn thành" }
-                  ].map(filter => (
+                    { id: "ChoXacNhan", label: "Chờ xác nhận" },
+                    { id: "DangChuanBi", label: "Đang chuẩn bị" },
+                    { id: "SanSangGiao", label: "Sẵn sàng" },
+                    { id: "DangGiao", label: "Đang giao" },
+                    { id: "DaGiao", label: "Đã giao" }
+                  ].map(f => (
                     <button 
-                      key={filter.id}
-                      className={`filter-btn ${orderFilter === filter.id ? "active" : ""}`}
-                      onClick={() => setOrderFilter(filter.id)}
+                      key={f.id}
+                      className={`filter-btn ${orderFilter === f.id ? "active" : ""}`}
+                      onClick={() => setOrderFilter(f.id)}
                     >
-                      {filter.label}
+                      {f.label}
                     </button>
                   ))}
                 </div>
@@ -223,77 +234,37 @@ const RestaurantAdmin: React.FC = () => {
                     <p style={{ textAlign: "center", color: "#999", padding: "40px" }}>Không tìm thấy đơn hàng nào.</p>
                   ) : (
                     filteredOrders.map(order => (
-                      <div className="restaurant-order-card" key={order.id}>
+                      <div className="restaurant-order-card" key={order.maDonHang}>
                         <div className="order-header">
-                          <strong><i className="fa-solid fa-receipt"></i> #{order.id}</strong>
-                          <span className={`order-status status-${order.status}`}>{order.status.toUpperCase()}</span>
+                          <strong><i className="fa-solid fa-receipt"></i> #{order.maDonHang}</strong>
+                          <span className={`order-status status-${order.trangThai?.toLowerCase()}`}>{order.trangThai}</span>
                         </div>
                         
                         <div className="order-info">
                           <div className="info-row">
-                            <i className="fa-solid fa-user"></i>
-                            <span>Khách hàng: <strong>{order.customerName}</strong> - {order.phone}</span>
-                          </div>
-                          <div className="info-row">
                             <i className="fa-solid fa-location-dot"></i>
-                            <span>Địa chỉ: {order.address}</span>
+                            <span>Địa chỉ: {order.diaChiGiao}</span>
                           </div>
                           <div className="info-row">
                             <i className="fa-solid fa-clock"></i>
-                            <span>Thời gian đặt: {order.date}</span>
+                            <span>Ngày đặt: {new Date(order.ngayDat).toLocaleString()}</span>
                           </div>
-                          <div className="info-row">
-                            <i className="fa-solid fa-comment-dots"></i>
-                            <span>Ghi chú: {order.note || "Không có"}</span>
-                          </div>
-                        </div>
-
-                        <div className="order-items">
-                          <strong>Món ăn yêu cầu:</strong>
-                          <ul>
-                            {order.items.map((item, i) => (
-                              <li key={i}>
-                                <span>{item.name}</span>
-                                <strong>x{item.quantity}</strong>
-                              </li>
-                            ))}
-                          </ul>
                         </div>
 
                         <div className="order-footer">
                           <div className="order-total">
-                            Tổng doanh thu: <span>{order.total.toLocaleString("vi-VN")} VNĐ</span>
+                            Tổng cộng: <span>{order.tongTien?.toLocaleString("vi-VN")} VNĐ</span>
                           </div>
                           
                           <div className="order-actions">
-                            {order.status === "new" && (
-                              <>
-                                <button className="btn-action btn-confirm" onClick={() => updateOrderStatus(order.id, "confirmed")}>
-                                  <i className="fa-solid fa-check"></i> Xác nhận
-                                </button>
-                                <button className="btn-action btn-cancel" onClick={() => updateOrderStatus(order.id, "cancelled")}>
-                                  <i className="fa-solid fa-xmark"></i> Hủy đơn
-                                </button>
-                              </>
-                            )}
-                            {order.status === "confirmed" && (
-                              <button className="btn-action btn-preparing" onClick={() => updateOrderStatus(order.id, "preparing")}>
-                                <i className="fa-solid fa-utensils"></i> Chuẩn bị món
+                            {order.trangThai === "ChoXacNhan" && (
+                              <button className="btn-action btn-confirm" onClick={() => updateOrderStatus(order.maDonHang, "confirm")}>
+                                <i className="fa-solid fa-check"></i> Xác nhận & Chuẩn bị
                               </button>
                             )}
-                            {order.status === "preparing" && (
-                              <button className="btn-action btn-ready" onClick={() => updateOrderStatus(order.id, "ready")}>
+                            {order.trangThai === "DangChuanBi" && (
+                              <button className="btn-action btn-ready" onClick={() => updateOrderStatus(order.maDonHang, "ready")}>
                                 <i className="fa-solid fa-bell"></i> Sẵn sàng giao
-                              </button>
-                            )}
-                            {order.status === "ready" && (
-                              <button className="btn-action btn-assign" onClick={() => updateOrderStatus(order.id, "assigned")}>
-                                <i className="fa-solid fa-truck"></i> Giao cho Shipper
-                              </button>
-                            )}
-                            {order.status === "assigned" && (
-                              <button className="btn-action btn-confirm" onClick={() => updateOrderStatus(order.id, "completed")}>
-                                <i className="fa-solid fa-check-double"></i> Hoàn thành
                               </button>
                             )}
                           </div>

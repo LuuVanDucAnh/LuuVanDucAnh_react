@@ -11,6 +11,13 @@ const Admin: React.FC = () => {
     const [currentUser, setCurrentUser] = useState<any>(null);
     const [cartCount, setCartCount] = useState(0);
 
+    // State for dynamic data
+    const [users, setUsers] = useState<any[]>([]);
+    const [restaurants, setRestaurants] = useState<any[]>([]);
+    const [orders, setOrders] = useState<any[]>([]);
+    const [statsData, setStatsData] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
     useEffect(() => {
         const user = localStorage.getItem("currentUser");
         if (user) {
@@ -20,56 +27,43 @@ const Admin: React.FC = () => {
         const cart = JSON.parse(localStorage.getItem('cart') || '[]');
         const count = cart.reduce((acc: number, item: any) => acc + item.quantity, 0);
         setCartCount(count);
+
+        fetchAllData();
     }, []);
+
+    const fetchAllData = async () => {
+        setLoading(true);
+        try {
+            // Lấy danh sách người dùng
+            const userRes = await axiosClient.get('/account/all');
+            if (userRes.data.success) setUsers(userRes.data.data);
+
+            // Lấy danh sách nhà hàng
+            const resRes = await axiosClient.get('/foods/Food/GetAll-NhaHang');
+            setRestaurants(resRes.data);
+
+            // Lấy danh sách đơn hàng
+            const orderRes = await axiosClient.get('/orders/ManageOrder/admin/all');
+            if (orderRes.data.success) setOrders(orderRes.data.data);
+
+            // Lấy thống kê
+            const statsRes = await axiosClient.get('/orders/ManageOrder/stats');
+            if (statsRes.data.success) setStatsData(statsRes.data.data);
+
+        } catch (error) {
+            console.error("Lỗi khi lấy dữ liệu Admin:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleLogout = () => {
         if (window.confirm("Bạn có chắc chắn muốn đăng xuất?")) {
             localStorage.removeItem("currentUser");
+            localStorage.removeItem("token");
             window.location.href = "/";
         }
     };
-
-    // Mock data for demonstration
-    const stats = {
-        totalUsers: 1250,
-        totalRestaurants: 45,
-        totalOrders: 3280,
-        totalRevenue: '1.250.000.000 VNĐ',
-        customers: 1100,
-        restaurantStaff: 120,
-        shippers: 30,
-        completedOrders: 3150
-    };
-
-    const bestSellers = [
-        { id: 1, name: 'Bánh tráng trộn', sales: 150, image: 'Banh-trang-tron.jpg' },
-        { id: 2, name: 'Trà sữa trân châu', sales: 120, image: 'Tra-sua-tran-chau-duong-den.jpg' },
-        { id: 3, name: 'Cơm chiên hải sản', sales: 95, image: 'Com-chien-chay.png' }
-    ];
-
-    const topRestaurants = [
-        { id: 1, name: 'Nhà hàng Sen Vàng', rating: 4.8, orders: 450 },
-        { id: 2, name: 'Phở Lý Quốc Sư', rating: 4.7, orders: 380 },
-        { id: 3, name: 'Bún Chả Sinh Từ', rating: 4.6, orders: 320 }
-    ];
-
-    const users = [
-        { id: 'USR001', name: 'Nguyễn Văn A', username: 'vana123', role: 'customer', createdAt: '2024-01-15' },
-        { id: 'USR002', name: 'Trần Thị B', username: 'thib_staff', role: 'nhanvien', createdAt: '2024-02-10' },
-        { id: 'USR003', name: 'Lê Văn C', username: 'vanc_shipper', role: 'shipper', createdAt: '2024-03-05' },
-        { id: 'USR004', name: 'Phạm Minh D', username: 'admin_minh', role: 'admin', createdAt: '2023-12-20' },
-    ];
-
-    const restaurants = [
-        { id: 1, name: 'Nhà hàng Sen Vàng', description: 'Chuyên các món ăn truyền thống Việt Nam', address: '123 Nguyễn Huệ, Quận 1', phone: '0901234567', image: 'anh-chung.jpg', minOrder: 50000 },
-        { id: 2, name: 'Phở Lý Quốc Sư', description: 'Phở gia truyền nổi tiếng Hà Nội', address: '45 Lý Quốc Sư, Hoàn Kiếm', phone: '0987654321', image: 'Lau-thai.jpg', minOrder: 30000 },
-    ];
-
-    const orders = [
-        { id: 'ORD001', customer: 'Nguyễn Văn A', restaurant: 'Nhà hàng Sen Vàng', total: 150000, status: 'completed', date: '2024-05-01' },
-        { id: 'ORD002', customer: 'Trần Thị B', restaurant: 'Phở Lý Quốc Sư', total: 85000, status: 'preparing', date: '2024-05-05' },
-        { id: 'ORD003', customer: 'Lê Văn C', restaurant: 'Bún Chả Sinh Từ', total: 120000, status: 'new', date: '2024-05-05' },
-    ];
 
     const handleOrderDetails = (order: any) => {
         setSelectedOrder(order);
@@ -175,76 +169,36 @@ const Admin: React.FC = () => {
                             <div className="stats">
                                 <div className="card">
                                     <i className="fa-solid fa-users"></i>
-                                    <span>{stats.totalUsers}</span>
+                                    <span>{statsData?.totalUsers || 0}</span>
                                     <p>Tổng người dùng</p>
                                 </div>
                                 <div className="card">
                                     <i className="fa-solid fa-store"></i>
-                                    <span>{stats.totalRestaurants}</span>
+                                    <span>{statsData?.totalRestaurants || 0}</span>
                                     <p>Tổng nhà hàng</p>
                                 </div>
                                 <div className="card">
                                     <i className="fa-solid fa-clipboard-list"></i>
-                                    <span>{stats.totalOrders}</span>
+                                    <span>{statsData?.totalOrders || 0}</span>
                                     <p>Tổng đơn hàng</p>
                                 </div>
                                 <div className="card">
                                     <i className="fa-solid fa-money-bill-wave"></i>
-                                    <span>{stats.totalRevenue}</span>
+                                    <span>{(statsData?.totalRevenue || 0).toLocaleString()} VNĐ</span>
                                     <p>Tổng doanh thu</p>
                                 </div>
                             </div>
 
                             <div className="stats-grid">
                                 <div className="card">
-                                    <i className="fa-solid fa-user-tie"></i>
-                                    <span>{stats.customers}</span>
-                                    <p>Khách hàng</p>
-                                </div>
-                                <div className="card">
-                                    <i className="fa-solid fa-utensils"></i>
-                                    <span>{stats.restaurantStaff}</span>
-                                    <p>Nhân viên nhà hàng</p>
-                                </div>
-                                <div className="card">
-                                    <i className="fa-solid fa-motorcycle"></i>
-                                    <span>{stats.shippers}</span>
-                                    <p>Shipper</p>
-                                </div>
-                                <div className="card">
                                     <i className="fa-solid fa-check-circle"></i>
-                                    <span>{stats.completedOrders}</span>
+                                    <span>{statsData?.completedOrders || 0}</span>
                                     <p>Đơn đã hoàn thành</p>
                                 </div>
-                            </div>
-
-                            <div className="content">
-                                <div className="box">
-                                    <h4><i className="fa-solid fa-fire"></i> Món ăn bán chạy</h4>
-                                    <ul>
-                                        {bestSellers.map(item => (
-                                            <li key={item.id}>
-                                                <img src={require(`../images/${item.image}`)} alt={item.name} />
-                                                <div>
-                                                    <strong>{item.name}</strong>
-                                                    <span>Đã bán: {item.sales}</span>
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                                <div className="box">
-                                    <h4><i className="fa-solid fa-chart-line"></i> Nhà hàng hoạt động tốt</h4>
-                                    <ul>
-                                        {topRestaurants.map(res => (
-                                            <li key={res.id}>
-                                                <div>
-                                                    <strong>{res.name}</strong>
-                                                    <span>Đánh giá: {res.rating} ⭐ | Đơn hàng: {res.orders}</span>
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ul>
+                                <div className="card">
+                                    <i className="fa-solid fa-clock"></i>
+                                    <span>{statsData?.pendingOrders || 0}</span>
+                                    <p>Đơn đang chờ</p>
                                 </div>
                             </div>
                         </section>
@@ -255,12 +209,6 @@ const Admin: React.FC = () => {
                         <section className="tab-content" id="users">
                             <div className="section-header">
                                 <h3>Quản lý người dùng</h3>
-                                <div className="filter-tabs">
-                                    <button className="filter-btn active">Tất cả</button>
-                                    <button className="filter-btn">Khách hàng</button>
-                                    <button className="filter-btn">Nhà hàng</button>
-                                    <button className="filter-btn">Shipper</button>
-                                </div>
                             </div>
                             <div className="table-container">
                                 <table className="data-table">
@@ -270,21 +218,20 @@ const Admin: React.FC = () => {
                                             <th>Họ tên</th>
                                             <th>Username</th>
                                             <th>Vai trò</th>
-                                            <th>Ngày tạo</th>
+                                            <th>SĐT</th>
                                             <th>Thao tác</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {users.map(user => (
-                                            <tr key={user.id}>
-                                                <td>{user.id}</td>
-                                                <td>{user.name}</td>
+                                            <tr key={user.maTK}>
+                                                <td>{user.maTK}</td>
+                                                <td>{user.hoTen}</td>
                                                 <td>{user.username}</td>
-                                                <td><span className={`badge badge-${user.role}`}>{user.role}</span></td>
-                                                <td>{user.createdAt}</td>
+                                                <td><span className={`badge badge-${user.vaiTro?.toLowerCase()}`}>{user.vaiTro}</span></td>
+                                                <td>{user.soDienThoai}</td>
                                                 <td>
                                                     <button className="btn-action btn-primary"><i className="fa-solid fa-pen"></i></button>
-                                                    <button className="btn-action btn-danger"><i className="fa-solid fa-trash"></i></button>
                                                 </td>
                                             </tr>
                                         ))}
@@ -305,19 +252,16 @@ const Admin: React.FC = () => {
                             </div>
                             <div className="restaurants-grid">
                                 {restaurants.map(res => (
-                                    <div className="restaurant-card-admin" key={res.id}>
+                                    <div className="restaurant-card-admin" key={res.maNhaHang}>
                                         <div className="restaurant-card-image">
-                                            <img src={require(`../images/${res.image}`)} alt={res.name} />
+                                            <img src={res.hinhAnh?.startsWith('http') ? res.hinhAnh : require(`../images/anh-chung.jpg`)} alt={res.tenNhaHang} />
                                         </div>
                                         <div className="restaurant-card-info">
-                                            <h4>{res.name}</h4>
-                                            <p>{res.description}</p>
+                                            <h4>{res.tenNhaHang}</h4>
+                                            <p>{res.diaChi}</p>
                                             <div className="restaurant-card-details">
-                                                <div><i className="fa-solid fa-location-dot"></i> {res.address}</div>
-                                            </div>
-                                            <div className="restaurant-card-details">
-                                                <div><i className="fa-solid fa-phone"></i> {res.phone}</div>
-                                                <div><i className="fa-solid fa-money-bill"></i> Min: {res.minOrder.toLocaleString()}đ</div>
+                                                <div><i className="fa-solid fa-phone"></i> {res.soDienThoai}</div>
+                                                <div><i className="fa-solid fa-money-bill"></i> Min: {res.minOrder?.toLocaleString()}đ</div>
                                             </div>
                                             <div className="restaurant-card-actions">
                                                 <button className="btn-action btn-primary">Sửa</button>
@@ -335,34 +279,27 @@ const Admin: React.FC = () => {
                         <section className="tab-content" id="orders">
                             <div className="section-header">
                                 <h3>Quản lý đơn hàng</h3>
-                                <div className="filter-tabs">
-                                    <button className="filter-btn active">Tất cả</button>
-                                    <button className="filter-btn">Đơn mới</button>
-                                    <button className="filter-btn">Hoàn thành</button>
-                                </div>
                             </div>
                             <div className="table-container">
                                 <table className="data-table">
                                     <thead>
                                         <tr>
                                             <th>Mã đơn</th>
-                                            <th>Khách hàng</th>
-                                            <th>Nhà hàng</th>
+                                            <th>Địa chỉ giao</th>
                                             <th>Tổng tiền</th>
                                             <th>Trạng thái</th>
-                                            <th>Ngày tạo</th>
+                                            <th>Ngày đặt</th>
                                             <th>Thao tác</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {orders.map(order => (
-                                            <tr key={order.id}>
-                                                <td>{order.id}</td>
-                                                <td>{order.customer}</td>
-                                                <td>{order.restaurant}</td>
-                                                <td>{order.total.toLocaleString()} VNĐ</td>
-                                                <td><span className={`badge badge-${order.status}`}>{order.status}</span></td>
-                                                <td>{order.date}</td>
+                                            <tr key={order.maDonHang}>
+                                                <td>{order.maDonHang}</td>
+                                                <td>{order.diaChiGiao}</td>
+                                                <td>{order.tongTien?.toLocaleString()} VNĐ</td>
+                                                <td><span className={`badge badge-${order.trangThai?.toLowerCase()}`}>{order.trangThai}</span></td>
+                                                <td>{new Date(order.ngayDat).toLocaleDateString()}</td>
                                                 <td>
                                                     <button className="btn-action btn-primary" onClick={() => handleOrderDetails(order)}>
                                                         <i className="fa-solid fa-eye"></i> Chi tiết
