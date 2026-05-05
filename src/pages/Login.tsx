@@ -64,7 +64,7 @@ const Login: React.FC = () => {
                 localStorage.setItem("loginTime", new Date().toISOString());
 
                 let redirectUrl = "/";
-                const role = responseData.user?.role?.toLowerCase() || "";
+                const role = (responseData.user?.vaiTro || responseData.user?.role || "").toLowerCase();
                 
                 if (role === "admin") {
                     redirectUrl = "/admin";

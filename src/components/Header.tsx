@@ -42,7 +42,7 @@ const Header = () => {
     }
   };
 
-  const userRole = currentUser?.role?.toLowerCase() || '';
+  const userRole = (currentUser?.vaiTro || currentUser?.role || '').toLowerCase();
 
   return (
     <div className="header">
@@ -103,13 +103,15 @@ const Header = () => {
                           <li className="yes_acc"><Link to="/shipper"><i className="fa-solid fa-gear"></i> Shipper</Link></li>
                         </>
                       )}
-                      {(userRole === "nhân viên" || userRole === "nhanvien" || userRole === "nhà hàng") && (
+                      {(userRole === "nhân viên" || userRole === "nhanvien" || userRole === "nhà hàng" || userRole === "nhahang") && (
                         <li className="yes_acc"><Link to="/restaurant-admin"><i className="fa-solid fa-gear"></i> Quản lý nhà hàng</Link></li>
                       )}
                       {userRole === "shipper" && (
                         <li className="yes_acc"><Link to="/shipper"><i className="fa-solid fa-gear"></i> Shipper</Link></li>
                       )}
-                      <li className="yes_acc"><Link to="/my-orders"><i className="fa-solid fa-clipboard-list"></i> Đơn hàng của tôi</Link></li>
+                      {userRole !== "admin" && userRole !== "nhanvien" && userRole !== "nhà hàng" && userRole !== "nhahang" && userRole !== "shipper" && (
+                        <li className="yes_acc"><Link to="/my-orders"><i className="fa-solid fa-clipboard-list"></i> Đơn hàng của tôi</Link></li>
+                      )}
                       <li className="yes_acc"><a href="#" onClick={handleLogout}><i className="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất</a></li>
                     </>
                   )}
