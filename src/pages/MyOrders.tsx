@@ -3,38 +3,37 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import "../assets/css/style_my_orders.css";
 
-// Giả lập dữ liệu đơn hàng chi tiết hơn
 const MOCK_ORDERS = [
   { 
     id: "DH-1001", 
-    date: "2026-05-05 09:30", 
+    date: "05/05/2026 09:30", 
     status: "new", 
     total: 150000, 
     items: [
-      { name: "Pizza Hải Sản", quantity: 1, price: 120000, image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=100" },
-      { name: "Coca Cola", quantity: 2, price: 15000, image: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=100" }
+      { name: "Pizza Hải Sản", quantity: 1, price: 120000 },
+      { name: "Coca Cola", quantity: 2, price: 15000 }
     ],
     address: "123 Đường ABC, Quận 1, TP.HCM",
     payment: "Tiền mặt (COD)"
   },
   { 
     id: "DH-1002", 
-    date: "2026-05-04 12:15", 
+    date: "04/05/2026 12:15", 
     status: "completed", 
     total: 55000, 
     items: [
-      { name: "Trà sữa Trân Châu", quantity: 2, price: 27500, image: "https://images.unsplash.com/photo-1544787210-2213d6439977?w=100" }
+      { name: "Trà sữa Trân Châu", quantity: 2, price: 27500 }
     ],
     address: "456 Đường XYZ, Quận 7, TP.HCM",
     payment: "ZaloPay"
   },
   { 
     id: "DH-1003", 
-    date: "2026-05-03 18:45", 
+    date: "03/05/2026 18:45", 
     status: "cancelled", 
     total: 120000, 
     items: [
-      { name: "Gà rán phần lớn", quantity: 1, price: 120000, image: "https://images.unsplash.com/photo-1562967914-608f82629710?w=100" }
+      { name: "Gà rán phần lớn", quantity: 1, price: 120000 }
     ],
     address: "789 Đường LMN, Quận Bình Thạnh, TP.HCM",
     payment: "Chuyển khoản"
@@ -58,6 +57,19 @@ const MyOrders: React.FC = () => {
       case "completed": return "Hoàn thành";
       case "cancelled": return "Đã hủy";
       default: return "Không xác định";
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "new": return "fa-clock";
+      case "confirmed": return "fa-check";
+      case "preparing": return "fa-utensils";
+      case "ready": return "fa-check-circle";
+      case "assigned": return "fa-truck";
+      case "completed": return "fa-check-double";
+      case "cancelled": return "fa-times-circle";
+      default: return "fa-info-circle";
     }
   };
 
@@ -99,42 +111,53 @@ const MyOrders: React.FC = () => {
 
           <div className="orders-list-container">
             {orders.length === 0 ? (
-              <div className="no-orders">
+              <div className="empty-orders">
                 <i className="fa-solid fa-folder-open"></i>
-                <p>Chưa có đơn hàng nào trong trạng thái này.</p>
+                <h3>Chưa có đơn hàng nào</h3>
+                <p>Bạn chưa có đơn hàng nào trong trạng thái này.</p>
               </div>
             ) : (
               orders.map(order => (
-                <div className="order-card" key={order.id}>
+                <div className="customer-order-card" key={order.id}>
                   <div className="order-card-header">
-                    <div>
-                      <span className="order-id">Mã ĐH: {order.id}</span>
-                      <div className="order-date"><i className="fa-regular fa-clock"></i> {order.date}</div>
+                    <div className="order-id-section">
+                      <h4><i className="fa-solid fa-receipt"></i> {order.id}</h4>
+                      <span className="order-date">{order.date}</span>
                     </div>
-                    <span className={`order-status status-${order.status}`}>
-                      {getStatusText(order.status)}
-                    </span>
+                    <div className={`order-status-badge status-${order.status}`}>
+                      <i className={`fa-solid ${getStatusIcon(order.status)}`}></i> {getStatusText(order.status)}
+                    </div>
                   </div>
                   
                   <div className="order-card-body">
-                    {order.items.slice(0, 2).map((item, index) => (
-                      <div className="order-item-summary" key={index}>
-                        <div className="item-info">
-                          <img src={item.image} alt={item.name} className="item-thumb" />
-                          <span>{item.quantity}x {item.name}</span>
-                        </div>
-                        <span>{(item.price * item.quantity).toLocaleString("vi-VN")}đ</span>
+                    <div className="order-info-row">
+                      <i className="fa-solid fa-location-dot"></i>
+                      <span>Địa chỉ: {order.address}</span>
+                    </div>
+                    <div className="order-info-row">
+                      <i className="fa-solid fa-credit-card"></i>
+                      <span>Thanh toán: {order.payment}</span>
+                    </div>
+                    <div className="order-info-row">
+                      <i className="fa-solid fa-money-bill-wave"></i>
+                      <span className="order-total">Tổng tiền: {order.total.toLocaleString("vi-VN")}đ</span>
+                    </div>
+                    
+                    <div className="order-items-preview">
+                      <strong>Sản phẩm:</strong>
+                      <div className="items-list">
+                        {order.items.map((item, index) => (
+                          <span className="item-tag" key={index}>
+                            {item.quantity}x {item.name}
+                          </span>
+                        ))}
                       </div>
-                    ))}
-                    {order.items.length > 2 && <p className="more-items">...và {order.items.length - 2} món khác</p>}
+                    </div>
                   </div>
 
                   <div className="order-card-footer">
-                    <div className="order-total">
-                      Tổng tiền: <span>{order.total.toLocaleString("vi-VN")}đ</span>
-                    </div>
                     <button className="btn-view-detail" onClick={() => openDetail(order)}>
-                      Xem chi tiết
+                      <i className="fa-solid fa-eye"></i> Xem chi tiết
                     </button>
                   </div>
                 </div>
@@ -145,39 +168,39 @@ const MyOrders: React.FC = () => {
       </div>
 
       {isModalOpen && selectedOrder && (
-        <div className="modal show" onClick={() => setIsModalOpen(false)}>
-          <div className="modal-content order-detail-modal" onClick={e => e.stopPropagation()}>
+        <div className="modal" style={{ display: "block" }} onClick={() => setIsModalOpen(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()}>
             <span className="close-modal" onClick={() => setIsModalOpen(false)}>&times;</span>
-            <h3><i className="fa-solid fa-receipt"></i> Chi tiết đơn hàng {selectedOrder.id}</h3>
-            
-            <div className="order-detail-content">
-              <div className="detail-section">
+            <div className="order-form-modal">
+              <h2><i className="fa-solid fa-receipt"></i> Chi tiết đơn hàng {selectedOrder.id}</h2>
+              
+              <div className="order-detail-section">
                 <h4><i className="fa-solid fa-info-circle"></i> Thông tin chung</h4>
-                <p><strong>Ngày đặt:</strong> {selectedOrder.date}</p>
-                <p><strong>Trạng thái:</strong> <span className={`order-status status-${selectedOrder.status}`}>{getStatusText(selectedOrder.status)}</span></p>
-                <p><strong>Địa chỉ:</strong> {selectedOrder.address}</p>
-                <p><strong>Thanh toán:</strong> {selectedOrder.payment}</p>
+                <div className="order-detail-item"><strong>Ngày đặt:</strong> {selectedOrder.date}</div>
+                <div className="order-detail-item">
+                  <strong>Trạng thái:</strong> 
+                  <span className={`order-status-badge status-${selectedOrder.status}`} style={{ marginLeft: "10px" }}>
+                    {getStatusText(selectedOrder.status)}
+                  </span>
+                </div>
+                <div className="order-detail-item"><strong>Địa chỉ:</strong> {selectedOrder.address}</div>
+                <div className="order-detail-item"><strong>Thanh toán:</strong> {selectedOrder.payment}</div>
               </div>
 
-              <div className="detail-section">
+              <div className="order-detail-section">
                 <h4><i className="fa-solid fa-bowl-food"></i> Danh sách món ăn</h4>
-                <div className="detail-items">
+                <div className="order-summary">
                   {selectedOrder.items.map((item: any, i: number) => (
-                    <div className="detail-item" key={i}>
-                      <img src={item.image} alt={item.name} className="detail-item-img" />
-                      <div className="detail-item-info">
-                        <h5>{item.name}</h5>
-                        <p>{item.quantity} x {item.price.toLocaleString("vi-VN")}đ</p>
-                      </div>
-                      <span className="detail-item-subtotal">{(item.quantity * item.price).toLocaleString("vi-VN")}đ</span>
+                    <div className="order-summary-item" key={i}>
+                      <span className="item-name">{item.name}</span>
+                      <span className="item-quantity">x{item.quantity}</span>
+                      <span className="item-price">{(item.quantity * item.price).toLocaleString("vi-VN")}đ</span>
                     </div>
                   ))}
+                  <div className="order-total-summary">
+                    <strong>Tổng cộng: <span>{selectedOrder.total.toLocaleString("vi-VN")}đ</span></strong>
+                  </div>
                 </div>
-              </div>
-
-              <div className="detail-total">
-                <span>Tổng cộng:</span>
-                <span>{selectedOrder.total.toLocaleString("vi-VN")}đ</span>
               </div>
             </div>
           </div>
