@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import axiosClient from '../utils/api';
 import '../assets/css/sign_in.css';
 import logo from '../images/Logo_icon.png';
 
@@ -14,7 +15,7 @@ const Register: React.FC = () => {
 
     const navigate = useNavigate();
 
-    const handleRegister = (e: React.FormEvent) => {
+    const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
         
         if (fullName === "" || username === "" || password === "" || confirmPassword === "") {
@@ -22,95 +23,45 @@ const Register: React.FC = () => {
             return;
         }
 
-        if (fullName.length < 2) {
-            alert("Họ và tên phải có ít nhất 2 ký tự!");
-            return;
-        }
-
-        if (username.length < 3) {
-            alert("Tên tài khoản phải có ít nhất 3 ký tự!");
-            return;
-        }
-
-        if (password.length < 6) {
-            alert("Mật khẩu phải có ít nhất 6 ký tự!");
-            return;
-        }
-
         if (password !== confirmPassword) {
-            alert("Mật khẩu không khớp! Vui lòng nhập lại.");
+            alert("Mật khẩu không khớp!");
             return;
         }
 
-        let users: any[] = [];
         try {
-            const usersData = localStorage.getItem("users");
-            if (usersData) users = JSON.parse(usersData);
-        } catch (error) {
-            console.error("Lỗi khi đọc dữ liệu:", error);
-            alert("Có lỗi xảy ra! Vui lòng thử lại.");
-            return;
-        }
+            // Gửi yêu cầu đăng ký lên API Backend
+            const response = await axiosClient.post('/Auth/register', {
+                Username: username,
+                MatKhau: password,
+                FullName: fullName,
+                Role: accountType // 'khachhang', 'nhanvien', 'shipper'
+            });
 
-        const userExists = users.some((user: any) => user.username === username);
-        if (userExists) {
-            alert("Tài khoản đã tồn tại! Vui lòng chọn tên tài khoản khác.");
-            return;
-        }
+            if (response.data.resultCode > 0) {
+                // Nếu là nhà hàng, khởi tạo thông tin nhà hàng ở localStorage (tuỳ chọn)
+                if (accountType === "nhanvien") {
+                    let restaurants = JSON.parse(localStorage.getItem('restaurants') || '[]');
+                    const newRestaurant = {
+                        id: 'rest_' + Date.now(),
+                        name: fullName,
+                        ownerUsername: username,
+                        image: '/images/Logo_icon.png',
+                        rating: 5.0,
+                        products: []
+                    };
+                    restaurants.push(newRestaurant);
+                    localStorage.setItem('restaurants', JSON.stringify(restaurants));
+                }
 
-        let role = accountType;
-        if (username.toLowerCase() === "admin") {
-            role = "admin";
-        }
-
-        const newUser: any = {
-            fullname: fullName,
-            username: username,
-            password: password,
-            createdAt: new Date().toISOString(),
-            role: role
-        };
-
-        if (role === "nhanvien" || role === "Nhà hàng") {
-            const restaurantId = 'rest_' + Date.now();
-            newUser.restaurantId = restaurantId;
-            
-            let restaurants: any[] = [];
-            try {
-                const restaurantsData = localStorage.getItem('restaurants');
-                if (restaurantsData) restaurants = JSON.parse(restaurantsData);
-            } catch (error) {}
-            
-            const existingRestaurant = restaurants.find(r => r.id === restaurantId);
-            if (!existingRestaurant) {
-                const newRestaurant = {
-                    id: restaurantId,
-                    name: fullName || username + ' Restaurant',
-                    description: 'Nhà hàng của ' + fullName,
-                    image: '/images/Logo_icon.png',
-                    address: 'Chưa cập nhật',
-                    phone: 'Chưa cập nhật',
-                    rating: 5.0,
-                    deliveryTime: '30-45 phút',
-                    minOrder: 50000,
-                    ownerUsername: username,
-                    products: []
-                };
-                restaurants.push(newRestaurant);
-                localStorage.setItem('restaurants', JSON.stringify(restaurants));
-                console.log('Đã tạo nhà hàng mới:', restaurantId);
+                alert("Đăng ký thành công!");
+                navigate('/login');
+            } else {
+                alert(response.data.message || "Đăng ký thất bại!");
             }
-        }
-
-        users.push(newUser);
-
-        try {
-            localStorage.setItem("users", JSON.stringify(users));
-            alert("Đăng ký thành công!");
-            navigate('/login');
-        } catch (error) {
-            console.error("Lỗi khi lưu dữ liệu:", error);
-            alert("Có lỗi xảy ra! Vui lòng thử lại.");
+        } catch (error: any) {
+            console.error("Lỗi đăng ký:", error);
+            const errorMessage = error.response?.data?.message || "Có lỗi xảy ra khi kết nối tới server!";
+            alert(errorMessage);
         }
     };
 

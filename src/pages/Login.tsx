@@ -56,7 +56,7 @@ const Login: React.FC = () => {
                 if (role === "admin") {
                     redirectUrl = "/admin";
                 } else if (role === "nhanvien" || role === "nhà hàng") {
-                    redirectUrl = "/nhahang";
+                    redirectUrl = "/restaurant-admin";
                 } else if (role === "shipper") {
                     redirectUrl = "/shipper";
                 }
