@@ -170,7 +170,7 @@ const MyOrders: React.FC = () => {
       </div>
 
       {isModalOpen && selectedOrder && (
-        <div className="modal" style={{ display: "block" }} onClick={() => setIsModalOpen(false)}>
+        <div className="modal" onClick={() => setIsModalOpen(false)}>
           <div className="modal-content order-detail-modal" onClick={e => e.stopPropagation()}>
             <span className="close-modal" onClick={() => setIsModalOpen(false)}>&times;</span>
             
