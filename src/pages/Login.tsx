@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import axiosClient from '../utils/api';
 import '../assets/css/sign_in.css';
 import logo from '../images/Logo_icon.png';
 
@@ -11,7 +12,7 @@ const Login: React.FC = () => {
 
     const navigate = useNavigate();
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (username === '' || password === '') {
@@ -29,37 +30,49 @@ const Login: React.FC = () => {
             return;
         }
 
-        const usersData = localStorage.getItem("users");
-        if (!usersData) {
-            alert("Không có dữ liệu người dùng! Vui lòng đăng ký tài khoản mới.");
-            return;
-        }
-
         try {
-            const users = JSON.parse(usersData);
-            const foundUser = users.find((user: any) => user.username === username && user.password === password);
+            const response = await axiosClient.post('/Auth/login', {
+                Username: username,
+                Password: password
+            });
 
-            if (foundUser) {
-                localStorage.setItem("currentUser", JSON.stringify(foundUser));
+            // API của bạn trả về thông qua ApiResponse.Ok(responseData, message)
+            // Cấu trúc trả về thường sẽ nằm trong response.data.data (nếu ApiResponse có thuộc tính data)
+            // hoặc tuỳ thuộc vào cách định nghĩa class ApiResponse của bạn.
+            // Dưới đây giả định ApiResponse bọc dữ liệu trong thuộc tính 'data'
+            
+            const apiResponse = response.data;
+            const responseData = apiResponse.data || apiResponse; // Đề phòng trường hợp API trả trực tiếp
+
+            if (responseData && responseData.token) {
+                // Lưu thông tin người dùng và token
+                localStorage.setItem("token", responseData.token);
+                localStorage.setItem("currentUser", JSON.stringify(responseData.user));
                 localStorage.setItem("loginTime", new Date().toISOString());
 
                 let redirectUrl = "/";
-                if (foundUser.role === "admin" || foundUser.role === "Admin") {
+                const role = responseData.user?.role?.toLowerCase() || "";
+                
+                if (role === "admin") {
                     redirectUrl = "/admin";
-                } else if (foundUser.role === "nhanvien" || foundUser.role === "Nhân Viên") {
+                } else if (role === "nhanvien" || role === "nhà hàng") {
                     redirectUrl = "/nhahang";
-                } else if (foundUser.role === "shipper" || foundUser.role === "Shipper") {
+                } else if (role === "shipper") {
                     redirectUrl = "/shipper";
                 }
 
-                alert("Đăng nhập thành công!");
+                alert(apiResponse.message || "Đăng nhập thành công!");
                 window.location.href = redirectUrl;
             } else {
-                alert("Sai tài khoản hoặc mật khẩu!");
+                alert("Không lấy được token từ server!");
             }
-        } catch (error) {
-            console.error("Lỗi khi đọc dữ liệu:", error);
-            alert("Có lỗi xảy ra! Vui lòng thử lại.");
+        } catch (error: any) {
+            console.error("Lỗi khi đăng nhập:", error);
+            if (error.response && error.response.status === 400) {
+                alert(error.response.data?.message || "Sai tài khoản hoặc mật khẩu!");
+            } else {
+                alert("Có lỗi xảy ra kết nối với Server! Vui lòng thử lại.");
+            }
         }
     };
 
