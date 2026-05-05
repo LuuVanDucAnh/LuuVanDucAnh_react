@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import CheckoutModal from "../components/CheckoutModal";
 import { CartItem, getCart, saveCart, getTotal } from "../utils/cart";
+import { addOrder, generateOrderId, formatDateTime } from "../utils/order";
 import "../assets/css/style_cart.css";
 
 const Cart = () => {
@@ -116,19 +117,33 @@ const Cart = () => {
           </div>
         </div>
       </div>
-      <Footer />
       <CheckoutModal 
         isOpen={isCheckoutModalOpen}
         onClose={() => setIsCheckoutModalOpen(false)}
         cart={cart}
         onSubmitOrder={(orderData) => {
-          console.log("Dữ liệu đặt hàng:", orderData);
-          // TODO: Gọi API tạo đơn hàng ở đây
-          alert("Đặt hàng thành công!");
+          const newOrder = {
+            id: generateOrderId(),
+            date: formatDateTime(new Date()),
+            status: "new",
+            total: orderData.totalAmount,
+            restaurant: cart[0]?.restaurantName || "Nhà Hàng DA Food", // Giả định lấy từ món đầu tiên
+            items: orderData.items,
+            customerName: orderData.customerName,
+            phone: orderData.customerPhone,
+            address: orderData.customerAddress,
+            note: orderData.orderNote,
+            payment: orderData.paymentMethod === "cash" ? "Thanh toán khi nhận hàng (COD)" : orderData.paymentMethod
+          };
+
+          addOrder(newOrder);
+          alert("Đặt hàng thành công! Đơn hàng của bạn đã được ghi lại.");
+          
           setCart([]);
           localStorage.removeItem("cart");
           window.dispatchEvent(new Event("cartUpdated"));
           setIsCheckoutModalOpen(false);
+          navigate("/my-orders"); // Chuyển sang trang đơn hàng để xem
         }}
       />
     </>

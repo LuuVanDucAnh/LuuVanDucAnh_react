@@ -1,6 +1,6 @@
-import React, { useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { getOrders } from "../utils/order";
 import "../assets/css/style_my_orders.css";
 
 const MOCK_ORDERS = [
@@ -37,12 +37,21 @@ const MOCK_ORDERS = [
   }
 ];
 
+import { getOrders } from "../utils/order";
+
 const MyOrders: React.FC = () => {
   const [filter, setFilter] = useState("all");
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [ordersData, setOrdersData] = useState<any[]>([]);
 
-  const orders = filter === "all" ? MOCK_ORDERS : MOCK_ORDERS.filter(o => o.status === filter);
+  useEffect(() => {
+    // Lấy đơn từ localStorage
+    const savedOrders = getOrders();
+    setOrdersData(savedOrders);
+  }, []);
+
+  const orders = filter === "all" ? ordersData : ordersData.filter(o => o.status === filter);
 
   const getStatusText = (status: string) => {
     switch (status) {
