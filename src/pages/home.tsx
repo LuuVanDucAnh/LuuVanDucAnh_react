@@ -80,47 +80,47 @@ const Home = () => {
         <div className="container">
           {/* Hero Slider */}
           <div className="slide_show">
-              <button className="prev_btn"><i className="fa-solid fa-chevron-left"></i></button>
-              <img src={slide1} alt="Slide Show" />
-              <button className="next_btn"><i className="fa-solid fa-chevron-right"></i></button>
+            <button className="prev_btn"><i className="fa-solid fa-chevron-left"></i></button>
+            <img src={slide1} alt="Slide Show" />
+            <button className="next_btn"><i className="fa-solid fa-chevron-right"></i></button>
           </div>
 
           {/* Core Services */}
           <div className="slide_service">
-              <div className="service_item">
-                  <i className="fa-solid fa-truck-fast"></i>
-                  <div className="service_text">
-                      <h3>Giao hàng tận nơi</h3>
-                      <p>Giao hàng nhanh chóng và tiện lợi đến tay bạn</p>
-                  </div>
+            <div className="service_item">
+              <i className="fa-solid fa-truck-fast"></i>
+              <div className="service_text">
+                <h3>Giao hàng tận nơi</h3>
+                <p>Giao hàng nhanh chóng và tiện lợi đến tay bạn</p>
               </div>
-              <div className="service_item">
-                  <i className="fa-solid fa-shield-heart"></i>
-                  <div className="service_text">
-                      <h3>Sản phẩm an toàn</h3>
-                      <p>Cam kết chất lượng đạt tiêu chuẩn</p>
-                  </div>
+            </div>
+            <div className="service_item">
+              <i className="fa-solid fa-shield-heart"></i>
+              <div className="service_text">
+                <h3>Sản phẩm an toàn</h3>
+                <p>Cam kết chất lượng đạt tiêu chuẩn</p>
               </div>
-              <div className="service_item">
-                  <i className="fa-solid fa-credit-card"></i>
-                  <div className="service_text">
-                      <h3>Thanh toán an toàn</h3>
-                      <p>Hỗ trợ phương thức thanh toán an toàn, bảo mật.</p>
-                  </div>
+            </div>
+            <div className="service_item">
+              <i className="fa-solid fa-credit-card"></i>
+              <div className="service_text">
+                <h3>Thanh toán an toàn</h3>
+                <p>Hỗ trợ phương thức thanh toán an toàn, bảo mật.</p>
               </div>
-              <div className="service_item">
-                  <i className="fa-solid fa-headset"></i>
-                  <div className="service_text">
-                      <h3>Hỗ trợ 24/7</h3>
-                      <p>Đội ngũ hỗ trợ khách hàng luôn sẵn sàng phục vụ bạn.</p>
-                  </div>
+            </div>
+            <div className="service_item">
+              <i className="fa-solid fa-headset"></i>
+              <div className="service_text">
+                <h3>Hỗ trợ 24/7</h3>
+                <p>Đội ngũ hỗ trợ khách hàng luôn sẵn sàng phục vụ bạn.</p>
               </div>
+            </div>
           </div>
 
 
           {/* Menu by Category */}
           {loading ? (
-            <p style={{textAlign: 'center', padding: '50px'}}>Đang tải thực đơn...</p>
+            <p style={{ textAlign: 'center', padding: '50px' }}>Đang tải thực đơn...</p>
           ) : (
             menu.map((cat) => (
               <div className="product" key={cat.MaDanhMuc}>
