@@ -1,4 +1,8 @@
 /* -------------------Đăng nhập, Đăng ký---------------- */
+.main_sign {
+  background-color: var(--bg-light);
+  padding: 20px 0;
+}
 .container_sign {
     max-width: 1130px;
     display: flex;

@@ -1,27 +1,35 @@
 import { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import OrderModal, { Dish } from "../components/Modal";
+import { foodsService, Category, Food } from "../services/apiService";
 import { getCart, saveCart } from "../utils/cart";
-import axiosClient from "../utils/api";
+import { getImageUrl } from "../utils/image";
 import "../assets/css/style_restaurant.css";
+import "../assets/css/style_modal.css";
 
 const RestaurantDetail = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const restaurant = location.state?.restaurant;
-  const [dishes, setDishes] = useState<Dish[]>([]);
-  const [selectedDish, setSelectedDish] = useState<Dish | null>(null);
+  const selectedCategory = location.state?.selectedCategory as number | undefined;
+
+  const [menu, setMenu] = useState<Category[]>([]);
+  const [selectedFood, setSelectedFood] = useState<Food | null>(null);
+  const [quantity, setQuantity] = useState(1);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchDishes = async () => {
-      if (!restaurant?.id) return;
+    const fetchMenu = async () => {
       try {
-        const res = await axiosClient.get(`/foods/Food/nhahang/${restaurant.id}/monan`);
-        setDishes(res.data);
+        const res = await foodsService.getMenu();
+        let categories = res.menu || [];
+
+        if (selectedCategory) {
+          categories = categories.filter((c: any) => c.MaDanhMuc === selectedCategory);
+        }
+
+        setMenu(categories);
       } catch (error) {
         console.error("Lỗi khi tải thực đơn:", error);
       } finally {
@@ -29,33 +37,28 @@ const RestaurantDetail = () => {
       }
     };
 
-    fetchDishes();
-  }, [restaurant]);
+    fetchMenu();
+  }, [selectedCategory]);
 
-  // Thêm món vào giỏ
-  const addToCart = (dish: Dish, quantity: number = 1) => {
+  const addToCart = (food: Food, qty: number = 1) => {
     const currentCart = getCart();
-    const existingItem = currentCart.find((item) => item.id === String(dish.maMonAn));
+    const existingItem = currentCart.find((item) => item.id === String(food.MaMonAn));
     if (existingItem) {
-      existingItem.quantity += quantity;
+      existingItem.quantity += qty;
     } else {
       currentCart.push({
-        id: String(dish.maMonAn),
-        name: dish.tenMon,
-        price: dish.gia,
-        image: dish.hinhAnh,
-        quantity: quantity,
-        restaurantName: restaurant?.name || "Nhà hàng",
-        maNhaHang: restaurant?.id
+        id: String(food.MaMonAn),
+        name: food.TenMon,
+        price: food.Gia,
+        image: food.HinhAnh,
+        quantity: qty,
+        restaurantName: restaurant?.TenNhaHang || "DA Food",
+        maNhaHang: restaurant?.MaNhaHang || 1,
       });
     }
     saveCart(currentCart);
-    
-    // Show toast instead of alert
-    setToastMessage(`Đã thêm ${quantity} x ${dish.tenMon} vào giỏ hàng`);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 3000);
+    setToastMessage(`Đã thêm ${qty} x ${food.TenMon} vào giỏ hàng`);
+    setTimeout(() => setToastMessage(null), 3000);
   };
 
   return (
@@ -63,70 +66,90 @@ const RestaurantDetail = () => {
       <Header />
       <div className="main">
         <div className="container">
-          {/* Thông tin nhà hàng */}
-          <div id="restaurant-header" className="restaurant-header">
-            <div className="restaurant-header-content">
-              <div className="restaurant-header-image">
-                <img
-                  src={restaurant?.image || dishes[0]?.hinhAnh || "https://via.placeholder.com/400x300?text=Nha+Hang"}
-                  alt={restaurant?.name || "Nhà hàng"}
-                />
-              </div>
-              <div className="restaurant-header-info">
-                <h1 className="restaurant-header-name">{restaurant?.name || "Nhà Hàng DA Food"}</h1>
-                <p className="restaurant-header-description">
-                  Nhà hàng cung cấp các món ăn ngon, đảm bảo vệ sinh an toàn thực phẩm. Luôn mang lại trải nghiệm tuyệt vời cho khách hàng.
-                </p>
-                <div className="restaurant-header-details">
-                  <div className="restaurant-header-detail-item">
-                    <i className="fa-solid fa-star"></i> {restaurant?.rating || "4.8"} / 5.0
-                  </div>
-                  <div className="restaurant-header-detail-item">
-                    <i className="fa-solid fa-utensils"></i> {restaurant?.dishes || "12 món"}
-                  </div>
-                  <div className="restaurant-header-detail-item">
-                    <i className="fa-regular fa-clock"></i> {restaurant?.time || "30–45 phút"}
-                  </div>
-                  <div className="restaurant-header-detail-item">
-                    <i className="fa-solid fa-location-dot"></i> La Tiến, Tống Trân, Phù Cừ, Hưng Yên
-                  </div>
+          {/* Danh sách sản phẩm theo danh mục */}
+          {loading ? (
+            <p style={{ textAlign: 'center', padding: '50px' }}>Đang tải thực đơn...</p>
+          ) : (
+            menu.map((cat) => (
+              <div className="product" key={cat.MaDanhMuc}>
+                <h2 className="product_title" id={`cat_${cat.MaDanhMuc}`}>
+                  {cat.TenDanhMuc}
+                </h2>
+                <div className="productContainer4col">
+                  {cat.monAn && cat.monAn.length > 0 ? (
+                    cat.monAn.map((food) => (
+                      <div className="product_item" key={food.MaMonAn}>
+                        <img
+                          src={getImageUrl(food.HinhAnh)}
+                          alt={food.TenMon}
+                        />
+                        <h3>{food.TenMon}</h3>
+                        <p className="food-price">{Number(food.Gia).toLocaleString('vi-VN')}đ</p>
+                        {food.MoTa && <p className="food-desc">{food.MoTa}</p>}
+                        <div className="product-actions">
+                          <button onClick={() => { setSelectedFood(food); setQuantity(1); }}>
+                            <i className="fa-solid fa-cart-shopping"></i> Đặt hàng
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p>Không có món ăn nào trong danh mục này.</p>
+                  )}
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* Danh sách sản phẩm */}
-          <div className="product">
-            <h2 className="product_title" id="restaurant-menu-title">
-              Thực Đơn
-            </h2>
-            <div id="restaurant-products" className="productContainer">
-              {loading ? (
-                <p>Đang tải thực đơn...</p>
-              ) : dishes.length > 0 ? (
-                dishes.map((dish) => (
-                  <div className="product_item" key={dish.maMonAn}>
-                    <img src={dish.hinhAnh?.startsWith('http') ? dish.hinhAnh : require(`../images/anh-chung.jpg`)} alt={dish.tenMon} />
-                    <h3>{dish.tenMon}</h3>
-                    <p>{dish.gia?.toLocaleString("vi-VN")}đ</p>
-                    <button onClick={() => setSelectedDish(dish)}>
-                      <i className="fa-solid fa-cart-shopping"></i> Đặt hàng
-                    </button>
-                  </div>
-                ))
-              ) : (
-                <p>Nhà hàng chưa cập nhật thực đơn.</p>
-              )}
-            </div>
-          </div>
+            ))
+          )}
         </div>
       </div>
       <Footer />
-      <OrderModal 
-        dish={selectedDish} 
-        onClose={() => setSelectedDish(null)} 
-        onAddToCart={addToCart} 
-      />
+
+      {/* Food Detail Modal */}
+      {selectedFood && (
+        <div className="modal" onClick={() => setSelectedFood(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <span className="close-modal" onClick={() => setSelectedFood(null)}>&times;</span>
+            <h2>{selectedFood.TenMon}</h2>
+            <hr className="modal-divider" />
+            <div className="modal-body">
+              <div className="modal-image">
+                <img
+                  src={getImageUrl(selectedFood.HinhAnh)}
+                  alt={selectedFood.TenMon}
+                />
+              </div>
+              <div className="modal-info">
+                <p className="modal-price">
+                  Giá: <span>{Number(selectedFood.Gia).toLocaleString('vi-VN')} VNĐ</span>
+                </p>
+                <p className="modal-desc">
+                  Mô tả: <i>{selectedFood.MoTa || "Không có mô tả"}</i>
+                </p>
+                <div className="modal-quantity-section">
+                  <span>Số lượng:</span>
+                  <div className="modal-quantity">
+                    <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="btn-qty">-</button>
+                    <input type="number" value={quantity} readOnly />
+                    <button onClick={() => setQuantity(q => q + 1)} className="btn-qty">+</button>
+                  </div>
+                </div>
+                <div className="modal-total">
+                  Thành tiền: <span>{(Number(selectedFood.Gia) * quantity).toLocaleString('vi-VN')} VNĐ</span>
+                </div>
+                <button
+                  className="btn-add-cart"
+                  onClick={() => {
+                    addToCart(selectedFood, quantity);
+                    setSelectedFood(null);
+                  }}
+                >
+                  THÊM VÀO GIỎ HÀNG
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Toast Notification */}
       {toastMessage && (

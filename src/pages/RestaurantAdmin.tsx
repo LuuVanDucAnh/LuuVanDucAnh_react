@@ -1,108 +1,193 @@
 import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import axiosClient from "../utils/api";
+import { restaurantService, adminService } from "../services/apiService";
+import { getImageUrl } from "../utils/image";
 import "../assets/css/style_restaurant_admin.css";
-
-// Interface cho sản phẩm của nhà hàng
-interface RestaurantProduct {
-  maMonAn: number;
-  tenMon: string;
-  gia: number;
-  hinhAnh: string;
-  moTa: string;
-  maDanhMuc: number;
-}
 
 const RestaurantAdmin: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"products" | "orders">("products");
-  const [products, setProducts] = useState<RestaurantProduct[]>([]);
-  const [orders, setOrders] = useState<any[]>([]);
-  const [orderFilter, setOrderFilter] = useState("all");
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
 
-  // State cho form thêm sản phẩm
+  // Products state
+  const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [productsLoading, setProductsLoading] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+
   const [newProduct, setNewProduct] = useState({
     tenMon: "",
     gia: "",
     hinhAnh: "",
     moTa: "",
-    maDanhMuc: 1
+    maDanhMuc: 1,
+    soLuong: 100,
   });
+
+  // Orders state
+  const [orders, setOrders] = useState<any[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [ordersTotal, setOrdersTotal] = useState(0);
+  const [orderFilter, setOrderFilter] = useState("all");
 
   useEffect(() => {
     const userStr = localStorage.getItem("currentUser");
     if (userStr) {
       const user = JSON.parse(userStr);
       setCurrentUser(user);
-      if (user.maNhaHang) {
-        fetchRestaurantData(user.maNhaHang);
-      }
     }
   }, []);
 
-  const fetchRestaurantData = async (maNhaHang: number) => {
+  useEffect(() => {
+    if (activeTab === "products") {
+      fetchProducts();
+      fetchCategories();
+    } else {
+      fetchOrders();
+    }
+  }, [activeTab, orderFilter]);
+
+  const fetchProducts = async () => {
+    setProductsLoading(true);
     try {
-      // 1. Load món ăn của quán
-      const productRes = await axiosClient.get(`/foods/Food/nhahang/${maNhaHang}/monan`);
-      setProducts(productRes.data);
-
-      // 2. Load đơn hàng của quán
-      const orderRes = await axiosClient.get('/orders/ManageOrder/merchant/list');
-      if (orderRes.data.success) setOrders(orderRes.data.data);
-
+      const res = await adminService.getFoodsAdmin();
+      setProducts(res.foods || []);
     } catch (error) {
-      console.error("Lỗi khi tải dữ liệu nhà hàng:", error);
+      console.error("Lỗi khi tải món ăn:", error);
+    } finally {
+      setProductsLoading(false);
     }
   };
 
-  const handleAddProduct = async () => {
-    if (!newProduct.tenMon || !newProduct.gia || !currentUser?.maNhaHang) {
-      alert("Vui lòng nhập đầy đủ thông tin!");
-      return;
-    }
-
+  const fetchCategories = async () => {
     try {
-      const productToAdd = {
-        ...newProduct,
-        gia: Number(newProduct.gia),
-        maNhaHang: currentUser.maNhaHang
+      const res = await adminService.getCategories();
+      setCategories(res.categories || []);
+    } catch (error) {
+      console.error("Lỗi khi tải danh mục:", error);
+    }
+  };
+
+  const fetchOrders = async () => {
+    setOrdersLoading(true);
+    try {
+      const params: any = { limit: 100 };
+      if (orderFilter !== "all") params.status = orderFilter;
+      const res = await restaurantService.getOrders(params);
+      setOrders(res.orders || []);
+      setOrdersTotal(res.total || 0);
+    } catch (error) {
+      console.error("Lỗi khi tải đơn hàng:", error);
+    } finally {
+      setOrdersLoading(false);
+    }
+  };
+
+  const handleSaveProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const payload = {
+        tenMon: newProduct.tenMon,
+        gia: parseFloat(newProduct.gia),
+        moTa: newProduct.moTa,
+        hinhAnh: newProduct.hinhAnh,
+        maDanhMuc: parseInt(String(newProduct.maDanhMuc)),
+        soLuong: parseInt(String(newProduct.soLuong)) || 100,
       };
 
-      const res = await axiosClient.post('/foods/Food/Create-MonAn', productToAdd);
-      alert("Thêm sản phẩm thành công!");
-      fetchRestaurantData(currentUser.maNhaHang);
-      setNewProduct({ tenMon: "", gia: "", hinhAnh: "", moTa: "", maDanhMuc: 1 });
-    } catch (error) {
-      alert("Lỗi khi thêm sản phẩm");
+      if (editingProduct) {
+        await adminService.updateFood(editingProduct.MaMonAn, payload);
+      } else {
+        await adminService.createFood(payload);
+      }
+
+      alert(editingProduct ? "Cập nhật món ăn thành công!" : "Thêm món ăn thành công!");
+      setIsProductModalOpen(false);
+      setEditingProduct(null);
+      setNewProduct({ tenMon: "", gia: "", hinhAnh: "", moTa: "", maDanhMuc: 1, soLuong: 100 });
+      fetchProducts();
+    } catch (error: any) {
+      alert(error.response?.data?.message || "Lỗi khi lưu món ăn!");
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleDeleteProduct = async (id: number) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
-      try {
-        await axiosClient.delete(`/foods/Food/Delete-MonAn/${id}`);
-        alert("Đã xóa sản phẩm");
-        fetchRestaurantData(currentUser.maNhaHang);
-      } catch (error) {
-        alert("Lỗi khi xóa sản phẩm");
-      }
-    }
-  };
-
-  const updateOrderStatus = async (orderId: number, endpoint: string) => {
+    if (!window.confirm("Bạn có chắc chắn muốn xóa món ăn này?")) return;
     try {
-      const res = await axiosClient.put(`/orders/ManageOrder/${orderId}/${endpoint}`);
-      if (res.data.success) {
-        alert("Cập nhật trạng thái thành công!");
-        fetchRestaurantData(currentUser.maNhaHang);
-      }
-    } catch (error) {
-      alert("Lỗi khi cập nhật trạng thái");
+      await adminService.deleteFood(id);
+      alert("Xóa món ăn thành công!");
+      fetchProducts();
+    } catch (error: any) {
+      alert(error.response?.data?.message || "Lỗi khi xóa!");
     }
   };
 
-  const filteredOrders = orderFilter === "all" ? orders : orders.filter(o => o.trangThai === orderFilter);
+  const handleConfirmOrder = async (orderId: number) => {
+    if (!window.confirm("Xác nhận đơn hàng này?")) return;
+    try {
+      await restaurantService.confirmOrder(orderId);
+      alert("Xác nhận đơn thành công!");
+      fetchOrders();
+    } catch (error: any) {
+      alert(error.response?.data?.message || "Lỗi khi xác nhận!");
+    }
+  };
+
+  const handleReadyOrder = async (orderId: number) => {
+    if (!window.confirm("Đơn đã chuẩn bị xong?")) return;
+    try {
+      await restaurantService.readyOrder(orderId);
+      alert("Đơn sẵn sàng giao!");
+      fetchOrders();
+    } catch (error: any) {
+      alert(error.response?.data?.message || "Lỗi khi cập nhật!");
+    }
+  };
+
+  const handleRejectOrder = async (orderId: number) => {
+    const lyDo = window.prompt("Lý do từ chối:");
+    if (lyDo === null) return;
+    try {
+      await restaurantService.rejectOrder(orderId, lyDo);
+      alert("Đã từ chối đơn hàng!");
+      fetchOrders();
+    } catch (error: any) {
+      alert(error.response?.data?.message || "Lỗi khi từ chối!");
+    }
+  };
+
+  const openEditProduct = (product: any) => {
+    setEditingProduct(product);
+    setNewProduct({
+      tenMon: product.TenMon,
+      gia: String(product.Gia),
+      hinhAnh: product.HinhAnh || "",
+      moTa: product.MoTa || "",
+      maDanhMuc: product.MaDanhMuc,
+      soLuong: product.SoLuong || 100,
+    });
+    setIsProductModalOpen(true);
+  };
+
+  const getStatusLabel = (status: string) => {
+    const map: Record<string, string> = {
+      ChoXacNhan: 'Chờ xác nhận',
+      DaXacNhan: 'Đã xác nhận',
+      DangChuanBi: 'Đang chuẩn bị',
+      SanSangGiao: 'Sẵn sàng giao',
+      DangGiao: 'Đang giao',
+      DaGiao: 'Đã giao',
+      Huy: 'Đã hủy',
+    };
+    return map[status] || status;
+  };
+
+  const pendingCount = orders.filter(o => o.TrangThai === 'ChoXacNhan').length;
 
   return (
     <>
@@ -110,106 +195,124 @@ const RestaurantAdmin: React.FC = () => {
       <div className="main">
         <div className="container">
           <div className="restaurant-tabs">
-            <button 
-              className={`tab-btn ${activeTab === "products" ? "active" : ""}`} 
+            <button
+              className={`tab-btn ${activeTab === "products" ? "active" : ""}`}
               onClick={() => setActiveTab("products")}
             >
-              Quản lý sản phẩm
+              <i className="fa-solid fa-burger"></i> Quản lý sản phẩm
             </button>
-            <button 
-              className={`tab-btn ${activeTab === "orders" ? "active" : ""}`} 
+            <button
+              className={`tab-btn ${activeTab === "orders" ? "active" : ""}`}
               onClick={() => setActiveTab("orders")}
             >
-              Quản lý đơn hàng
-              {orders.filter(o => o.status === "new").length > 0 && (
-                <span className="notification-badge">
-                  {orders.filter(o => o.status === "new").length}
-                </span>
+              <i className="fa-solid fa-clipboard-list"></i> Quản lý đơn hàng
+              {pendingCount > 0 && (
+                <span className="notification-badge">{pendingCount}</span>
               )}
             </button>
           </div>
 
-          {/* Tab Quản lý sản phẩm */}
+          {/* PRODUCTS TAB */}
           {activeTab === "products" && (
             <div className="tab-content active">
               <div className="product-manager">
-                <h2>Quản lý sản phẩm</h2>
-                
+                <h2><i className="fa-solid fa-burger"></i> Quản lý sản phẩm</h2>
+
                 <div className="add-product-section">
-                  <h3>Thêm sản phẩm mới</h3>
-                  <div className="add-product-form">
-                    <select 
-                      value={newProduct.maDanhMuc} 
-                      onChange={(e) => setNewProduct({...newProduct, maDanhMuc: Number(e.target.value)})}
+                  <h3>{editingProduct ? 'Chỉnh sửa sản phẩm' : 'Thêm sản phẩm mới'}</h3>
+                  <form className="add-product-form" onSubmit={handleSaveProduct}>
+                    <select
+                      value={newProduct.maDanhMuc}
+                      onChange={(e) => setNewProduct({ ...newProduct, maDanhMuc: Number(e.target.value) })}
                     >
-                      <option value="1">Món chính</option>
-                      <option value="2">Món nước</option>
-                      <option value="3">Đồ uống</option>
-                      <option value="4">Ăn vặt</option>
+                      {categories.map(c => (
+                        <option key={c.MaDanhMuc} value={c.MaDanhMuc}>{c.TenDanhMuc}</option>
+                      ))}
                     </select>
-                    <input 
-                      type="text" 
-                      placeholder="Tên món" 
+                    <input
+                      type="text"
+                      placeholder="Tên món"
                       value={newProduct.tenMon}
-                      onChange={(e) => setNewProduct({...newProduct, tenMon: e.target.value})}
+                      onChange={(e) => setNewProduct({ ...newProduct, tenMon: e.target.value })}
+                      required
                     />
-                    <input 
-                      type="number" 
-                      placeholder="Giá (VNĐ)" 
+                    <input
+                      type="number"
+                      placeholder="Giá (VNĐ)"
                       value={newProduct.gia}
-                      onChange={(e) => setNewProduct({...newProduct, gia: e.target.value})}
+                      onChange={(e) => setNewProduct({ ...newProduct, gia: e.target.value })}
+                      required
                     />
-                    <input 
-                      type="text" 
-                      placeholder="Link ảnh" 
+                    <input
+                      type="number"
+                      placeholder="Số lượng tồn"
+                      value={newProduct.soLuong}
+                      onChange={(e) => setNewProduct({ ...newProduct, soLuong: Number(e.target.value) || 0 })}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Link hình ảnh"
                       value={newProduct.hinhAnh}
-                      onChange={(e) => setNewProduct({...newProduct, hinhAnh: e.target.value})}
+                      onChange={(e) => setNewProduct({ ...newProduct, hinhAnh: e.target.value })}
                     />
-                    <input 
-                      type="text" 
-                      placeholder="Mô tả ngắn" 
+                    <input
+                      type="text"
+                      placeholder="Mô tả"
                       value={newProduct.moTa}
-                      onChange={(e) => setNewProduct({...newProduct, moTa: e.target.value})}
+                      onChange={(e) => setNewProduct({ ...newProduct, moTa: e.target.value })}
                     />
-                    <button onClick={handleAddProduct}>
-                      <i className="fa-solid fa-plus"></i> Thêm sản phẩm
+                    <button type="submit" disabled={loading}>
+                      <i className="fa-solid fa-save"></i> {loading ? "Đang lưu..." : (editingProduct ? "Cập nhật" : "Thêm món")}
                     </button>
-                  </div>
+                    {editingProduct && (
+                      <button type="button" className="btn-secondary" onClick={() => {
+                        setEditingProduct(null);
+                        setNewProduct({ tenMon: "", gia: "", hinhAnh: "", moTa: "", maDanhMuc: 1, soLuong: 100 });
+                        setIsProductModalOpen(false);
+                      }}>
+                        Hủy
+                      </button>
+                    )}
+                  </form>
                 </div>
 
-                <h3>Danh sách sản phẩm hiện có</h3>
-                <div id="product-list">
-                  {products.length === 0 ? (
-                    <p style={{ textAlign: "center", color: "#999", padding: "20px" }}>Chưa có sản phẩm nào.</p>
-                  ) : (
-                    products.map(product => (
-                      <div className="product_item" key={product.maMonAn}>
+                <h3>Danh sách sản phẩm hiện có ({products.length})</h3>
+                {productsLoading ? (
+                  <p style={{ textAlign: "center", color: "#999", padding: "20px" }}>Đang tải...</p>
+                ) : products.length === 0 ? (
+                  <p style={{ textAlign: "center", color: "#999", padding: "20px" }}>Chưa có sản phẩm nào.</p>
+                ) : (
+                  <div id="product-list">
+                    {products.map(product => (
+                      <div className="product_item" key={product.MaMonAn}>
                         <div className="img-box">
-                          <img src={product.hinhAnh?.startsWith('http') ? product.hinhAnh : require(`../images/anh-chung.jpg`)} alt={product.tenMon} />
+                          <img
+                            src={getImageUrl(product.HinhAnh)}
+                            alt={product.TenMon}
+                          />
                         </div>
-                        <div className="name-box">
-                          <strong>{product.tenMon}</strong>
-                        </div>
-                        <div className="price-box"> {product.gia?.toLocaleString("vi-VN")} VNĐ </div>
+                        <div className="name-box"><strong>{product.TenMon}</strong></div>
+                        <div className="price-box">{Number(product.Gia).toLocaleString("vi-VN")}đ</div>
                         <div className="desc-box">
-                          <em>{product.moTa}</em>
+                          <em>Tồn kho: {product.SoLuong || 0}</em> | <em>{product.MoTa || product.TenDanhMuc}</em>
                         </div>
                         <div className="btn-box">
-                          <button onClick={() => handleDeleteProduct(product.maMonAn)}>Xóa</button>
+                          <button onClick={() => openEditProduct(product)}><i className="fa-solid fa-pen"></i> Sửa</button>
+                          <button className="btn-danger" onClick={() => handleDeleteProduct(product.MaMonAn)}><i className="fa-solid fa-trash"></i> Xóa</button>
                         </div>
                       </div>
-                    ))
-                  )}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}
 
-          {/* Tab Quản lý đơn hàng */}
+          {/* ORDERS TAB */}
           {activeTab === "orders" && (
             <div className="tab-content active">
               <div className="order-manager">
-                <h2>Quản lý đơn hàng</h2>
+                <h2><i className="fa-solid fa-clipboard-list"></i> Quản lý đơn hàng</h2>
                 <div className="order-filters">
                   {[
                     { id: "all", label: "Tất cả" },
@@ -217,9 +320,10 @@ const RestaurantAdmin: React.FC = () => {
                     { id: "DangChuanBi", label: "Đang chuẩn bị" },
                     { id: "SanSangGiao", label: "Sẵn sàng" },
                     { id: "DangGiao", label: "Đang giao" },
-                    { id: "DaGiao", label: "Đã giao" }
+                    { id: "DaGiao", label: "Đã giao" },
+                    { id: "Huy", label: "Đã hủy" },
                   ].map(f => (
-                    <button 
+                    <button
                       key={f.id}
                       className={`filter-btn ${orderFilter === f.id ? "active" : ""}`}
                       onClick={() => setOrderFilter(f.id)}
@@ -230,40 +334,56 @@ const RestaurantAdmin: React.FC = () => {
                 </div>
 
                 <div id="orders-list" className="orders-list">
-                  {filteredOrders.length === 0 ? (
+                  {ordersLoading ? (
+                    <p style={{ textAlign: "center", color: "#999", padding: "40px" }}>Đang tải...</p>
+                  ) : orders.length === 0 ? (
                     <p style={{ textAlign: "center", color: "#999", padding: "40px" }}>Không tìm thấy đơn hàng nào.</p>
                   ) : (
-                    filteredOrders.map(order => (
-                      <div className="restaurant-order-card" key={order.maDonHang}>
+                    orders.map(order => (
+                      <div className="restaurant-order-card" key={order.MaDonHang}>
                         <div className="order-header">
-                          <strong><i className="fa-solid fa-receipt"></i> #{order.maDonHang}</strong>
-                          <span className={`order-status status-${order.trangThai?.toLowerCase()}`}>{order.trangThai}</span>
+                          <strong><i className="fa-solid fa-receipt"></i> #{order.MaDonHang}</strong>
+                          <span className={`order-status status-${order.TrangThai?.toLowerCase()}`}>
+                            {getStatusLabel(order.TrangThai)}
+                          </span>
                         </div>
-                        
                         <div className="order-info">
                           <div className="info-row">
+                            <i className="fa-solid fa-user"></i>
+                            <span>{order.TenKhachHang || order.MaKhachHang} - {order.KhachHangSDT || ''}</span>
+                          </div>
+                          <div className="info-row">
                             <i className="fa-solid fa-location-dot"></i>
-                            <span>Địa chỉ: {order.diaChiGiao}</span>
+                            <span>Địa chỉ: {order.DiaChiGiao}</span>
                           </div>
                           <div className="info-row">
                             <i className="fa-solid fa-clock"></i>
-                            <span>Ngày đặt: {new Date(order.ngayDat).toLocaleString()}</span>
+                            <span>Ngày đặt: {new Date(order.NgayDat).toLocaleString()}</span>
                           </div>
+                          {order.GhiChu && (
+                            <div className="info-row">
+                              <i className="fa-solid fa-sticky-note"></i>
+                              <span>Ghi chú: {order.GhiChu}</span>
+                            </div>
+                          )}
                         </div>
-
                         <div className="order-footer">
                           <div className="order-total">
-                            Tổng cộng: <span>{order.tongTien?.toLocaleString("vi-VN")} VNĐ</span>
+                            Tổng cộng: <span>{Number(order.TongTien).toLocaleString("vi-VN")} VNĐ</span>
                           </div>
-                          
                           <div className="order-actions">
-                            {order.trangThai === "ChoXacNhan" && (
-                              <button className="btn-action btn-confirm" onClick={() => updateOrderStatus(order.maDonHang, "confirm")}>
-                                <i className="fa-solid fa-check"></i> Xác nhận & Chuẩn bị
-                              </button>
+                            {order.TrangThai === 'ChoXacNhan' && (
+                              <>
+                                <button className="btn-action btn-confirm" onClick={() => handleConfirmOrder(order.MaDonHang)}>
+                                  <i className="fa-solid fa-check"></i> Xác nhận & Chuẩn bị
+                                </button>
+                                <button className="btn-action btn-danger" onClick={() => handleRejectOrder(order.MaDonHang)}>
+                                  <i className="fa-solid fa-xmark"></i> Từ chối
+                                </button>
+                              </>
                             )}
-                            {order.trangThai === "DangChuanBi" && (
-                              <button className="btn-action btn-ready" onClick={() => updateOrderStatus(order.maDonHang, "ready")}>
+                            {order.TrangThai === 'DangChuanBi' && (
+                              <button className="btn-action btn-ready" onClick={() => handleReadyOrder(order.MaDonHang)}>
                                 <i className="fa-solid fa-bell"></i> Sẵn sàng giao
                               </button>
                             )}

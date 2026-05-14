@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "../assets/css/style_modal.css";
+import { getImageUrl } from "../utils/image";
 
 // Kiểu Dish mới từ API
 export type Dish = {
@@ -41,7 +42,7 @@ const OrderModal = ({ dish, onClose, onAddToCart }: OrderModalProps) => {
         <div className="modal-body">
           <div className="modal-image">
             <img
-              src={dish.hinhAnh?.startsWith('http') ? dish.hinhAnh : "https://via.placeholder.com/300x200?text=Mon+An"}
+              src={getImageUrl(dish.hinhAnh)}
               alt={dish.tenMon}
             />
           </div>
@@ -98,4 +99,4 @@ const OrderModal = ({ dish, onClose, onAddToCart }: OrderModalProps) => {
   );
 };
 
-export default OrderModal;
+export default OrderModal;

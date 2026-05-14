@@ -1,45 +1,69 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import ProductCard from "../components/ProductCard";
-import axiosClient from "../utils/api";
+import { foodsService, Category, Food } from "../services/apiService";
+import { getCart, saveCart } from "../utils/cart";
+import { getImageUrl } from "../utils/image";
 
 import slide1 from "../images/Slide1.png";
 import slide2 from "../images/Slide2.png";
 import slide3 from "../images/Slide3.png";
 import "../assets/css/style_home.css";
+import "../assets/css/style_modal.css";
 
 const Home = () => {
-  const [restaurants, setRestaurants] = useState<any[]>([]);
+  const [menu, setMenu] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedFood, setSelectedFood] = useState<Food | null>(null);
+  const [quantity, setQuantity] = useState(1);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchRestaurants = async () => {
+    const fetchData = async () => {
       try {
-        const res = await axiosClient.get('/foods/Food/GetAll-NhaHang');
-        // Map lại dữ liệu để tương thích với ProductCard nếu cần
-        const formattedData = res.data.map((item: any) => ({
-          id: item.maNhaHang,
-          name: item.tenNhaHang,
-          description: item.diaChi,
-          image: item.hinhAnh?.startsWith('http') ? item.hinhAnh : null,
-          price: item.minOrder ? item.minOrder.toLocaleString() + 'đ' : '0đ',
-          rating: 4.5 + (Math.random() * 0.5), // Mock rating vì DB chưa có
-          maDanhMuc: item.maDanhMuc || 1
-        }));
-        setRestaurants(formattedData);
+        const menuRes = await foodsService.getMenu();
+        setMenu(menuRes.menu || []);
       } catch (error) {
-        console.error("Lỗi khi tải danh sách nhà hàng:", error);
+        console.error("Lỗi khi tải dữ liệu:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRestaurants();
+    fetchData();
   }, []);
 
-  const getRestaurantsByCategory = (catId: number) => {
-    return restaurants.filter(r => r.maDanhMuc === catId);
+  const addToCart = (food: Food, qty: number = 1) => {
+    const currentCart = getCart();
+    const existingItem = currentCart.find((item) => item.id === String(food.MaMonAn));
+    if (existingItem) {
+      existingItem.quantity += qty;
+    } else {
+      currentCart.push({
+        id: String(food.MaMonAn),
+        name: food.TenMon,
+        price: food.Gia,
+        image: food.HinhAnh,
+        quantity: qty,
+        restaurantName: "DA Food",
+        maNhaHang: 1,
+      });
+    }
+    saveCart(currentCart);
+    setToastMessage(`Đã thêm ${qty} x ${food.TenMon} vào giỏ hàng`);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
+  const getCategoryIcon = (tenDanhMuc: string) => {
+    const lower = tenDanhMuc.toLowerCase();
+    if (lower.includes("mặn") || lower.includes("cơm")) return "fa-drumstick-bite";
+    if (lower.includes("nước") || lower.includes("lẩu") || lower.includes("súp")) return "fa-bowl-food";
+    if (lower.includes("uống") || lower.includes("trà") || lower.includes("sữa")) return "fa-mug-hot";
+    if (lower.includes("vặt") || lower.includes("bánh") || lower.includes("khoai")) return "fa-cookie";
+    return "fa-utensils";
   };
 
   return (
@@ -87,34 +111,98 @@ const Home = () => {
               </div>
           </div>
 
-          {/* Food Sections */}
+
+          {/* Menu by Category */}
           {loading ? (
-            <p style={{textAlign: 'center', padding: '50px'}}>Đang tải danh sách nhà hàng...</p>
+            <p style={{textAlign: 'center', padding: '50px'}}>Đang tải thực đơn...</p>
           ) : (
-            <>
-              <FoodSection title="Món Mặn (Cơm)" id="mon_man" products={getRestaurantsByCategory(1)} />
-              <FoodSection title="Món Nước" id="mon_nuoc" products={getRestaurantsByCategory(2)} />
-              <FoodSection title="Đồ Uống & Trà Sữa" id="do_uong" products={getRestaurantsByCategory(3)} />
-              <FoodSection title="Đồ Ăn Vặt" id="an_vat" products={getRestaurantsByCategory(4)} />
-            </>
+            menu.map((cat) => (
+              <div className="product" key={cat.MaDanhMuc}>
+                <h2 className="product_title" id={`cat_${cat.MaDanhMuc}`}>
+                  <i className={`fa-solid ${getCategoryIcon(cat.TenDanhMuc)}`}></i> {cat.TenDanhMuc}
+                </h2>
+                <div className="productContainer">
+                  {(cat.monAn || []).map((food) => (
+                    <div className="product_item" key={food.MaMonAn}>
+                      <img
+                        src={getImageUrl(food.HinhAnh)}
+                        alt={food.TenMon}
+                      />
+                      <h3>{food.TenMon}</h3>
+                      {food.MoTa && <p className="food-desc">{food.MoTa}</p>}
+                      <p className="food-price">{Number(food.Gia).toLocaleString('vi-VN')}đ</p>
+                      <div className="product-actions">
+                        <button onClick={() => { setSelectedFood(food); setQuantity(1); }}>
+                          <i className="fa-solid fa-cart-shopping"></i> Đặt hàng
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))
           )}
         </div>
       </main>
 
       <Footer />
+
+      {/* Food Detail Modal */}
+      {selectedFood && (
+        <div className="modal" onClick={() => setSelectedFood(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <span className="close-modal" onClick={() => setSelectedFood(null)}>&times;</span>
+            <h2>{selectedFood.TenMon}</h2>
+            <hr className="modal-divider" />
+            <div className="modal-body">
+              <div className="modal-image">
+                <img
+                  src={getImageUrl(selectedFood.HinhAnh)}
+                  alt={selectedFood.TenMon}
+                />
+              </div>
+              <div className="modal-info">
+                <p className="modal-price">
+                  Giá: <span>{Number(selectedFood.Gia).toLocaleString('vi-VN')} VNĐ</span>
+                </p>
+                <p className="modal-desc">
+                  Mô tả: <i>{selectedFood.MoTa || "Không có mô tả"}</i>
+                </p>
+                <div className="modal-quantity-section">
+                  <span>Số lượng:</span>
+                  <div className="modal-quantity">
+                    <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="btn-qty">-</button>
+                    <input type="number" value={quantity} readOnly />
+                    <button onClick={() => setQuantity(q => q + 1)} className="btn-qty">+</button>
+                  </div>
+                </div>
+                <div className="modal-total">
+                  Thành tiền: <span>{(Number(selectedFood.Gia) * quantity).toLocaleString('vi-VN')} VNĐ</span>
+                </div>
+                <button
+                  className="btn-add-cart"
+                  onClick={() => {
+                    addToCart(selectedFood, quantity);
+                    setSelectedFood(null);
+                  }}
+                >
+                  THÊM VÀO GIỎ HÀNG
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="toast-notification">
+          <i className="fa-solid fa-circle-check"></i>
+          {toastMessage}
+        </div>
+      )}
     </div>
   );
 };
-
-const FoodSection = ({ title, id, products }: any) => (
-  <div className="product">
-      <h2 className="product_title" id={id}>{title}</h2>
-      <div id={`restaurants_${id}`} className="restaurants-container">
-          {products.map((product: any) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-      </div>
-  </div>
-);
 
 export default Home;

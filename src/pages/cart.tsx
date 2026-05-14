@@ -4,15 +4,15 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import CheckoutModal from "../components/CheckoutModal";
 import { CartItem, getCart, saveCart, getTotal } from "../utils/cart";
-import axiosClient from "../utils/api";
+import { ordersService } from "../services/apiService";
 import "../assets/css/style_cart.css";
 
 const Cart = () => {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Load dữ liệu và kiểm tra đăng nhập
   useEffect(() => {
     const currentUser = localStorage.getItem("currentUser");
     if (!currentUser) {
@@ -23,43 +23,84 @@ const Cart = () => {
       }
       return;
     }
-
     setCart(getCart());
   }, [navigate]);
 
-  // Cập nhật localStorage
+  useEffect(() => {
+    const handleCartUpdate = () => setCart(getCart());
+    window.addEventListener("cartUpdated", handleCartUpdate);
+    return () => window.removeEventListener("cartUpdated", handleCartUpdate);
+  }, []);
+
   const updateCart = (newCart: CartItem[]) => {
     setCart(newCart);
     saveCart(newCart);
   };
 
-  // Tăng số lượng
   const increase = (id: string) => {
-    const newCart = cart.map(item =>
-      item.id === id
-        ? { ...item, quantity: item.quantity + 1 }
-        : item
-    );
-    updateCart(newCart);
+    updateCart(cart.map(item =>
+      item.id === id ? { ...item, quantity: item.quantity + 1 } : item
+    ));
   };
 
-  // Giảm số lượng
   const decrease = (id: string) => {
-    const newCart = cart
-      .map(item =>
-        item.id === id
-          ? { ...item, quantity: item.quantity - 1 }
-          : item
-      )
-      .filter(item => item.quantity > 0);
-
-    updateCart(newCart);
+    updateCart(cart.map(item =>
+      item.id === id ? { ...item, quantity: item.quantity - 1 } : item
+    ).filter(item => item.quantity > 0));
   };
 
-  // Xóa sản phẩm
   const removeItem = (id: string) => {
-    const newCart = cart.filter(item => item.id !== id);
-    updateCart(newCart);
+    updateCart(cart.filter(item => item.id !== id));
+  };
+
+  const handleCheckout = async (orderData: {
+    customerName: string;
+    customerPhone: string;
+    customerAddress: string;
+    paymentMethod: string;
+    orderNote: string;
+  }) => {
+    const user = JSON.parse(localStorage.getItem("currentUser") || '{}');
+    if (!user.maKhachHang) {
+      alert("Không tìm thấy thông tin khách hàng. Vui lòng đăng nhập lại.");
+      return;
+    }
+
+    if (!orderData.customerAddress) {
+      alert("Vui lòng nhập địa chỉ giao hàng!");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const phuongThuc = orderData.paymentMethod === "cash" ? "TienMat"
+        : orderData.paymentMethod === "bank" ? "ChuyenKhoan"
+        : orderData.paymentMethod === "momo" ? "MoMo"
+        : orderData.paymentMethod === "zalopay" ? "ZaloPay"
+        : "TienMat";
+
+      const res = await ordersService.create({
+        maKhachHang: user.maKhachHang,
+        diaChiGiao: orderData.customerAddress,
+        ghiChu: orderData.orderNote || '',
+        phuongThucThanhToan: phuongThuc,
+        items: cart.map(item => ({
+          maMonAn: parseInt(item.id),
+          soLuong: item.quantity,
+        })),
+        maNhaHang: cart[0]?.maNhaHang || 1,
+      });
+
+      alert(res.message || "Đặt hàng thành công!");
+      saveCart([]);
+      navigate("/my-orders");
+    } catch (error: any) {
+      console.error("Lỗi đặt hàng:", error);
+      alert(error.response?.data?.message || "Có lỗi xảy ra khi đặt hàng!");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -80,22 +121,17 @@ const Cart = () => {
                       <div className="cart-item-image">
                         <img src={item.image} alt={item.name} />
                       </div>
-                      
                       <div className="cart-item-details">
                         <h3>{item.name}</h3>
                         <p>Giá: {item.price.toLocaleString("vi-VN")}đ</p>
-                        
                         <div className="quantity-controls">
                           <button onClick={() => decrease(item.id)}>-</button>
                           <span>{item.quantity}</span>
                           <button onClick={() => increase(item.id)}>+</button>
                         </div>
                       </div>
-                      
                       <div className="cart-item-actions">
-                        <button onClick={() => removeItem(item.id)}>
-                          Xóa
-                        </button>
+                        <button onClick={() => removeItem(item.id)}>Xóa</button>
                       </div>
                     </div>
                   ))}
@@ -107,7 +143,11 @@ const Cart = () => {
                     <p>{getTotal(cart).toLocaleString("vi-VN")}đ</p>
                   </div>
                   <div className="total_price_btn">
-                    <button className="btn_order" onClick={() => setIsCheckoutModalOpen(true)}>
+                    <button
+                      className="btn_order"
+                      onClick={() => setIsCheckoutModalOpen(true)}
+                      disabled={loading}
+                    >
                       Thanh toán
                     </button>
                   </div>
@@ -117,40 +157,12 @@ const Cart = () => {
           </div>
         </div>
       </div>
-      <CheckoutModal 
+      <Footer />
+      <CheckoutModal
         isOpen={isCheckoutModalOpen}
-        onClose={() => setIsCheckoutModalOpen(false)}
+        onClose={() => { setIsCheckoutModalOpen(false); setLoading(false); }}
         cart={cart}
-        onSubmitOrder={async (orderData) => {
-          try {
-            const requestBody = {
-              maNhaHang: cart[0]?.maNhaHang || 0,
-              diaChiGiao: orderData.customerAddress,
-              ghiChu: orderData.orderNote,
-              phuongThucThanhToan: orderData.paymentMethod === "cash" ? "TienMat" : "ChuyenKhoan",
-              gioHang: cart.map(item => ({
-                maMonAn: parseInt(item.id),
-                soLuong: item.quantity
-              }))
-            };
-
-            const res = await axiosClient.post('/orders/Order/taodonhang', requestBody);
-            
-            if (res.data.success) {
-              alert("Đặt hàng thành công! Đơn hàng của bạn đang được xử lý.");
-              setCart([]);
-              localStorage.removeItem("cart");
-              window.dispatchEvent(new Event("cartUpdated"));
-              setIsCheckoutModalOpen(false);
-              navigate("/my-orders");
-            } else {
-              alert(res.data.message || "Đặt hàng thất bại");
-            }
-          } catch (error: any) {
-            console.error("Lỗi đặt hàng:", error);
-            alert(error.response?.data?.message || "Có lỗi xảy ra khi đặt hàng");
-          }
-        }}
+        onSubmitOrder={handleCheckout}
       />
     </>
   );

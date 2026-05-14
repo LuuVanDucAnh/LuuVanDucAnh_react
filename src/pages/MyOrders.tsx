@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import axiosClient from '../utils/api';
+import { ordersService } from '../services/apiService';
 import '../assets/css/style_my_orders.css';
 
 export default function MyOrders() {
   const [filter, setFilter] = useState('all');
-  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [ordersData, setOrdersData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+  const [orderDetail, setOrderDetail] = useState<any | null>(null);
+  const [loadingDetail, setLoadingDetail] = useState(false);
 
   useEffect(() => {
     fetchMyOrders();
@@ -18,11 +19,12 @@ export default function MyOrders() {
   const fetchMyOrders = async () => {
     setLoading(true);
     try {
-      const statusParam = filter === 'all' ? '' : `?status=${filter}`;
-      const res = await axiosClient.get(`/orders/Order/laydanhsachdonhang${statusParam}`);
-      if (res.data.success) {
-        setOrdersData(res.data.data);
+      const res = await ordersService.getMyOrders();
+      let orders = res.orders || [];
+      if (filter !== 'all') {
+        orders = orders.filter((o: any) => o.TrangThai === filter);
       }
+      setOrdersData(orders);
     } catch (error) {
       console.error('Lỗi khi tải đơn hàng:', error);
     } finally {
@@ -30,15 +32,25 @@ export default function MyOrders() {
     }
   };
 
+  const fetchOrderDetail = async (id: number) => {
+    setLoadingDetail(true);
+    try {
+      const res = await ordersService.getOrderById(id);
+      setOrderDetail(res.order);
+    } catch (error) {
+      console.error('Lỗi khi tải chi tiết:', error);
+    } finally {
+      setLoadingDetail(false);
+    }
+  };
+
   const handleCancelOrder = async (orderId: number) => {
     if (window.confirm('Bạn có chắc chắn muốn hủy đơn hàng này?')) {
       try {
-        const res = await axiosClient.put(`/orders/Order/${orderId}/huydonhangdat`);
-        if (res.data.success) {
-          alert('Hủy đơn hàng thành công!');
-          fetchMyOrders();
-          setIsModalOpen(false);
-        }
+        await ordersService.cancel(orderId);
+        alert('Hủy đơn hàng thành công!');
+        fetchMyOrders();
+        setSelectedOrder(null);
       } catch (error: any) {
         alert(error.response?.data?.message || 'Lỗi khi hủy đơn hàng');
       }
@@ -46,33 +58,34 @@ export default function MyOrders() {
   };
 
   const getStatusText = (status: string) => {
-    switch (status) {
-      case 'ChoXacNhan': return 'ĐANG CHỜ';
-      case 'DaXacNhan': return 'ĐÃ XÁC NHẬN';
-      case 'DangChuanBi': return 'ĐANG CHUẨN BỊ';
-      case 'SanSangGiao': return 'SẴN SÀNG';
-      case 'DangGiao': return 'ĐANG GIAO';
-      case 'DaGiao': return 'HOÀN THÀNH';
-      case 'Huy': return 'ĐÃ HỦY';
-      default: return status?.toUpperCase() || 'KHÔNG XÁC ĐỊNH';
-    }
+    const map: Record<string, string> = {
+      ChoXacNhan: 'ĐANG CHỜ',
+      DaXacNhan: 'ĐÃ XÁC NHẬN',
+      DangChuanBi: 'ĐANG CHUẨN BỊ',
+      SanSangGiao: 'SẴN SÀNG',
+      DangGiao: 'ĐANG GIAO',
+      DaGiao: 'HOÀN THÀNH',
+      Huy: 'ĐÃ HỦY',
+    };
+    return map[status] || status?.toUpperCase() || 'KHÔNG XÁC ĐỊNH';
   };
 
   const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'ChoXacNhan': return 'fa-clock';
-      case 'DangChuanBi': return 'fa-utensils';
-      case 'SanSangGiao': return 'fa-check-circle';
-      case 'DangGiao': return 'fa-truck';
-      case 'DaGiao': return 'fa-check-double';
-      case 'Huy': return 'fa-times-circle';
-      default: return 'fa-info-circle';
-    }
+    const map: Record<string, string> = {
+      ChoXacNhan: 'fa-clock',
+      DaXacNhan: 'fa-check',
+      DangChuanBi: 'fa-utensils',
+      SanSangGiao: 'fa-check-circle',
+      DangGiao: 'fa-truck',
+      DaGiao: 'fa-check-double',
+      Huy: 'fa-times-circle',
+    };
+    return map[status] || 'fa-info-circle';
   };
 
   const openDetail = (order: any) => {
     setSelectedOrder(order);
-    setIsModalOpen(true);
+    fetchOrderDetail(order.MaDonHang);
   };
 
   return (
@@ -95,7 +108,7 @@ export default function MyOrders() {
               { id: 'DaGiao', icon: 'fa-check-double', label: 'Đã giao' },
               { id: 'Huy', icon: 'fa-times-circle', label: 'Đã hủy' }
             ].map(tab => (
-              <button 
+              <button
                 key={tab.id}
                 className={`filter-tab ${filter === tab.id ? 'active' : ''}`}
                 onClick={() => setFilter(tab.id)}
@@ -116,38 +129,44 @@ export default function MyOrders() {
               </div>
             ) : (
               ordersData.map(order => (
-                <div className="customer-order-card" key={order.maDonHang}>
+                <div className="customer-order-card" key={order.MaDonHang}>
                   <div className="order-card-header">
                     <div className="order-id-section">
-                      <h4><i className="fa-solid fa-receipt"></i> Đơn hàng #{order.maDonHang}</h4>
-                      <span className="order-date">{new Date(order.ngayDat).toLocaleString()}</span>
+                      <h4><i className="fa-solid fa-receipt"></i> Đơn hàng #{order.MaDonHang}</h4>
+                      <span className="order-date">{new Date(order.NgayDat).toLocaleString()}</span>
                     </div>
-                    <div className={`order-status-badge status-${order.trangThai?.toLowerCase()}`}>
-                      <i className={`fa-solid ${getStatusIcon(order.trangThai)}`}></i> {getStatusText(order.trangThai)}
+                    <div className={`order-status-badge status-${order.TrangThai?.toLowerCase()}`}>
+                      <i className={`fa-solid ${getStatusIcon(order.TrangThai)}`}></i> {getStatusText(order.TrangThai)}
                     </div>
                   </div>
-                  
+
                   <div className="order-card-body">
                     <div className="order-info-row">
                       <i className="fa-solid fa-store"></i>
-                      <span>Nhà hàng: <strong>{order.tenNhaHang}</strong></span>
+                      <span>Nhà hàng: <strong>{order.TenNhaHang || 'DA Food'}</strong></span>
                     </div>
                     <div className="order-info-row">
                       <i className="fa-solid fa-location-dot"></i>
-                      <span>Địa chỉ giao: {order.diaChiGiao}</span>
+                      <span>Địa chỉ giao: {order.DiaChiGiao}</span>
                     </div>
                     <div className="order-info-row">
                       <i className="fa-solid fa-money-bill-wave"></i>
-                      <span className="order-total">Tổng tiền: {order.tongTien?.toLocaleString('vi-VN')} VNĐ</span>
+                      <span className="order-total">Tổng tiền: {Number(order.TongTien).toLocaleString('vi-VN')} VNĐ</span>
                     </div>
+                    {order.TenShipper && (
+                      <div className="order-info-row">
+                        <i className="fa-solid fa-truck"></i>
+                        <span>Shipper: <strong>{order.TenShipper}</strong> - {order.ShipperSDT}</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="order-card-footer">
                     <button className="btn-view-detail" onClick={() => openDetail(order)}>
                       <i className="fa-solid fa-eye"></i> Xem chi tiết
                     </button>
-                    {order.trangThai === 'ChoXacNhan' && (
-                      <button className="btn-cancel-order" style={{ marginLeft: '10px' }} onClick={() => handleCancelOrder(order.maDonHang)}>
+                    {order.TrangThai === 'ChoXacNhan' && (
+                      <button className="btn-cancel-order" style={{ marginLeft: '10px' }} onClick={() => handleCancelOrder(order.MaDonHang)}>
                         <i className="fa-solid fa-xmark"></i> Hủy đơn
                       </button>
                     )}
@@ -159,67 +178,106 @@ export default function MyOrders() {
         </div>
       </div>
 
-      {isModalOpen && selectedOrder && (
-        <div className="modal" onClick={() => setIsModalOpen(false)}>
+      {/* Order Detail Modal */}
+      {selectedOrder && (
+        <div className="modal" onClick={() => setSelectedOrder(null)}>
           <div className="modal-content order-detail-modal" onClick={e => e.stopPropagation()}>
-            <span className="close-modal" onClick={() => setIsModalOpen(false)}>&times;</span>
-            
-            <h2><i className="fa-solid fa-receipt"></i> Chi tiết đơn hàng</h2>
-            
-            <div className="order-detail-content">
-              <div className="detail-section">
-                <h4><i className="fa-solid fa-circle-info"></i> Thông tin đơn hàng</h4>
-                <div className="detail-row">
-                  <span className="detail-label">Mã đơn hàng:</span>
-                  <span className="detail-value">#{selectedOrder.maDonHang}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Trạng thái:</span>
-                  <span className={`order-status-badge status-${selectedOrder.trangThai?.toLowerCase()}`}>
-                    <i className={`fa-solid ${getStatusIcon(selectedOrder.trangThai)}`}></i> {getStatusText(selectedOrder.trangThai)}
-                  </span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Nhà hàng:</span>
-                  <span className="detail-value">{selectedOrder.tenNhaHang}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Thời gian đặt:</span>
-                  <span className="detail-value">{new Date(selectedOrder.ngayDat).toLocaleString()}</span>
-                </div>
-              </div>
+            <span className="close-modal" onClick={() => setSelectedOrder(null)}>&times;</span>
 
-              <div className="detail-section">
-                <h4><i className="fa-solid fa-user"></i> Thông tin giao hàng</h4>
-                <div className="detail-row">
-                  <span className="detail-label">Địa chỉ nhận:</span>
-                  <span className="detail-value">{selectedOrder.diaChiGiao}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Phương thức:</span>
-                  <span className="detail-value">{selectedOrder.phuongThucThanhToan}</span>
-                </div>
-              </div>
+            <h2><i className="fa-solid fa-receipt"></i> Chi tiết đơn hàng #{selectedOrder.MaDonHang}</h2>
 
-              <div className="detail-section payment-section">
-                <h4><i className="fa-solid fa-credit-card"></i> Thanh toán</h4>
-                <div className="detail-row">
-                  <span className="detail-label">Tổng tiền:</span>
-                  <span className="total-bold">{selectedOrder.tongTien?.toLocaleString('vi-VN')} VNĐ</span>
+            {loadingDetail ? (
+              <p>Đang tải chi tiết...</p>
+            ) : orderDetail ? (
+              <div className="order-detail-content">
+                <div className="detail-section">
+                  <h4><i className="fa-solid fa-circle-info"></i> Thông tin đơn hàng</h4>
+                  <div className="detail-row">
+                    <span className="detail-label">Mã đơn hàng:</span>
+                    <span className="detail-value">#{orderDetail.MaDonHang}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Trạng thái:</span>
+                    <span className={`order-status-badge status-${orderDetail.TrangThai?.toLowerCase()}`}>
+                      <i className={`fa-solid ${getStatusIcon(orderDetail.TrangThai)}`}></i> {getStatusText(orderDetail.TrangThai)}
+                    </span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Nhà hàng:</span>
+                    <span className="detail-value">{orderDetail.TenNhaHang || 'DA Food'}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Thời gian đặt:</span>
+                    <span className="detail-value">{new Date(orderDetail.NgayDat).toLocaleString()}</span>
+                  </div>
+                  {orderDetail.NgayGiao && (
+                    <div className="detail-row">
+                      <span className="detail-label">Thời gian giao:</span>
+                      <span className="detail-value">{new Date(orderDetail.NgayGiao).toLocaleString()}</span>
+                    </div>
+                  )}
                 </div>
-              </div>
 
-              <div className="modal-footer-actions" style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
-                {selectedOrder.trangThai === 'ChoXacNhan' && (
-                  <button className="btn-cancel-order" onClick={() => handleCancelOrder(selectedOrder.maDonHang)}>
-                    <i className="fa-solid fa-xmark"></i> Hủy đơn hàng này
+                <div className="detail-section">
+                  <h4><i className="fa-solid fa-utensils"></i> Món ăn</h4>
+                  {orderDetail.items?.map((item: any, idx: number) => (
+                    <div key={idx} className="detail-row">
+                      <span>{item.SoLuong} x {item.TenMon}</span>
+                      <span>{Number(item.DonGia * item.SoLuong).toLocaleString('vi-VN')}đ</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="detail-section">
+                  <h4><i className="fa-solid fa-user"></i> Thông tin giao hàng</h4>
+                  <div className="detail-row">
+                    <span className="detail-label">Địa chỉ nhận:</span>
+                    <span className="detail-value">{orderDetail.DiaChiGiao}</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Phương thức:</span>
+                    <span className="detail-value">{orderDetail.PhuongThucThanhToan}</span>
+                  </div>
+                  {orderDetail.GhiChu && (
+                    <div className="detail-row">
+                      <span className="detail-label">Ghi chú:</span>
+                      <span className="detail-value">{orderDetail.GhiChu}</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="detail-section payment-section">
+                  <h4><i className="fa-solid fa-credit-card"></i> Thanh toán</h4>
+                  <div className="detail-row">
+                    <span className="detail-label">Tạm tính:</span>
+                    <span className="detail-value">{Number(orderDetail.TongTien - orderDetail.PhiShip).toLocaleString('vi-VN')} VNĐ</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Phí ship:</span>
+                    <span className="detail-value">{Number(orderDetail.PhiShip).toLocaleString('vi-VN')} VNĐ</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Tổng tiền:</span>
+                    <span className="total-bold">{Number(orderDetail.TongTien).toLocaleString('vi-VN')} VNĐ</span>
+                  </div>
+                  <div className="detail-row">
+                    <span className="detail-label">Thanh toán:</span>
+                    <span className="detail-value">{orderDetail.TrangThaiThanhToan === 'DaThanhToan' ? 'Đã thanh toán' : 'Chưa thanh toán'}</span>
+                  </div>
+                </div>
+
+                <div className="modal-footer-actions" style={{ marginTop: '20px', display: 'flex', justifyContent: 'flex-end' }}>
+                  {selectedOrder.TrangThai === 'ChoXacNhan' && (
+                    <button className="btn-cancel-order" onClick={() => handleCancelOrder(selectedOrder.MaDonHang)}>
+                      <i className="fa-solid fa-xmark"></i> Hủy đơn hàng này
+                    </button>
+                  )}
+                  <button className="btn-view-detail" style={{ marginLeft: '10px' }} onClick={() => setSelectedOrder(null)}>
+                    Đóng
                   </button>
-                )}
-                <button className="btn-view-detail" style={{ marginLeft: '10px' }} onClick={() => setIsModalOpen(false)}>
-                  Đóng
-                </button>
+                </div>
               </div>
-            </div>
+            ) : null}
           </div>
         </div>
       )}

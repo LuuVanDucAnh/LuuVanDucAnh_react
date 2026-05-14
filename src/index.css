@@ -41,3 +41,20 @@ ul {
   padding: 0 20px;
 }
 
+/* Main content area */
+.main {
+  min-height: calc(100vh - 200px);
+  background-color: var(--bg-light);
+}
+
+/* Home page wrapper */
+.home {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.home .main {
+  flex: 1;
+}
+
