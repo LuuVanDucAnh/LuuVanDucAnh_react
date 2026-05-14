@@ -55,6 +55,12 @@ const Home = () => {
     saveCart(currentCart);
     setToastMessage(`Đã thêm ${qty} x ${food.TenMon} vào giỏ hàng`);
     setTimeout(() => setToastMessage(null), 3000);
+
+    // Trừ đi số lượng khách đã đặt trong danh sách menu hiện tại
+    setMenu(prevMenu => prevMenu.map(cat => ({
+      ...cat,
+      monAn: cat.monAn?.map(m => m.MaMonAn === food.MaMonAn ? { ...m, SoLuong: m.SoLuong !== undefined ? m.SoLuong - qty : undefined } : m)
+    })));
   };
 
   const getCategoryIcon = (tenDanhMuc: string) => {
@@ -124,11 +130,13 @@ const Home = () => {
                 <div className="productContainer">
                   {(cat.monAn || []).map((food) => (
                     <div className="product_item" key={food.MaMonAn}>
-                      <img
-                        src={getImageUrl(food.HinhAnh)}
-                        alt={food.TenMon}
-                      />
-                      <h3>{food.TenMon}</h3>
+                      <div onClick={() => navigate(`/food/${food.MaMonAn}`)} style={{ cursor: "pointer" }}>
+                        <img
+                          src={getImageUrl(food.HinhAnh)}
+                          alt={food.TenMon}
+                        />
+                        <h3>{food.TenMon}</h3>
+                      </div>
                       {food.MoTa && <p className="food-desc">{food.MoTa}</p>}
                       <p className="food-price">{Number(food.Gia).toLocaleString('vi-VN')}đ</p>
                       <div className="product-actions">
@@ -170,14 +178,17 @@ const Home = () => {
                 </p>
                 <div className="modal-quantity-section">
                   <span>Số lượng:</span>
+                  <div style={{ fontSize: '14px', color: '#868e96', marginLeft: 'auto', marginRight: '15px' }}>
+                    Còn: <strong>{selectedFood.SoLuong !== undefined ? selectedFood.SoLuong : 'Không giới hạn'}</strong>
+                  </div>
                   <div className="modal-quantity">
-                    <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="btn-qty">-</button>
-                    <input type="number" value={quantity} readOnly />
-                    <button onClick={() => setQuantity(q => q + 1)} className="btn-qty">+</button>
+                    <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="btn-qty" disabled={selectedFood.SoLuong === 0}>-</button>
+                    <input type="number" value={selectedFood.SoLuong === 0 ? 0 : quantity} readOnly />
+                    <button onClick={() => setQuantity(q => (selectedFood.SoLuong !== undefined && q >= selectedFood.SoLuong) ? q : q + 1)} className="btn-qty" disabled={selectedFood.SoLuong === 0 || (selectedFood.SoLuong !== undefined && quantity >= selectedFood.SoLuong)}>+</button>
                   </div>
                 </div>
                 <div className="modal-total">
-                  Thành tiền: <span>{(Number(selectedFood.Gia) * quantity).toLocaleString('vi-VN')} VNĐ</span>
+                  Thành tiền: <span>{(Number(selectedFood.Gia) * (selectedFood.SoLuong === 0 ? 0 : quantity)).toLocaleString('vi-VN')} VNĐ</span>
                 </div>
                 <button
                   className="btn-add-cart"
@@ -185,8 +196,10 @@ const Home = () => {
                     addToCart(selectedFood, quantity);
                     setSelectedFood(null);
                   }}
+                  disabled={selectedFood.SoLuong === 0}
+                  style={selectedFood.SoLuong === 0 ? { background: '#adb5bd', cursor: 'not-allowed', boxShadow: 'none' } : {}}
                 >
-                  THÊM VÀO GIỎ HÀNG
+                  {selectedFood.SoLuong === 0 ? "HẾT HÀNG" : "THÊM VÀO GIỎ HÀNG"}
                 </button>
               </div>
             </div>
