@@ -60,6 +60,7 @@ export interface Food {
   MoTa: string;
   HinhAnh: string;
   MaDanhMuc: number;
+  MaNhaHang?: number;
   SoLuong?: number;
   TenDanhMuc?: string;
 }

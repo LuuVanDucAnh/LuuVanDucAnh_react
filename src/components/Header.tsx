@@ -149,10 +149,14 @@ const Header = () => {
           <div className="container">
             <ul className="nav">
               <li><Link to="/">Trang chủ</Link></li>
-              <li><a href="#cat_1">Món Mặn</a></li>
-              <li><a href="#cat_2">Món Nước</a></li>
-              <li><a href="#cat_3">Đồ Uống</a></li>
-              <li><a href="#cat_4">Ăn Vặt</a></li>
+              <li><a href="#cat_1">Cơm</a></li>
+              <li><a href="#cat_2">Món Nướng</a></li>
+              <li><a href="#cat_3">Món Chiên</a></li>
+              <li><a href="#cat_4">Bún & Phở</a></li>
+              <li><a href="#cat_5">Mì & Miến</a></li>
+              <li><a href="#cat_6">Đồ Uống</a></li>
+              <li><a href="#cat_7">Salad & Gỏi</a></li>
+              <li><a href="#cat_8">Tráng Miệng</a></li>
             </ul>
           </div>
         </div>
